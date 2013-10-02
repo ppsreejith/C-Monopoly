@@ -1,0 +1,7 @@
+
+Starting Nmap 6.00 ( http://nmap.org ) at 2013-10-02 09:48 IST
+NSE: Loaded 17 scripts for scanning.
+Initiating Ping Scan at 09:48
+Scanning 4096 hosts [2 ports/host]
+Completed Ping Scan at 09:48, 2.40s elapsed (4096 total hosts)
+Initiating Parallel DNS resolution of 4096 hosts. at 09:48
