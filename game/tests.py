@@ -129,6 +129,13 @@ class ModelsTestCase(TestCase):
         values = profile2.factory_set.values_list('id', flat=True)
         values = [int(i) for i in values]
         
+        #reload profiles
+        profile2 = Profile.objects.get(id = profile2.id)
+        self.profile = Profile.objects.get(id = self.profile.id)
+        
+        capital_before_loan = profile2.capital
+        net_worth_before_loan = profile2.net_worth
+        
         try:
             profile2.takeLoan(100,12,values)
         except Exception:
@@ -148,9 +155,16 @@ class ModelsTestCase(TestCase):
         self.assertEqual(profile2.Loan.mortaged_industries.count(),2,"profile2 must mortage only 2 factories")
         
         #profile2's loan must be 5 million + interest
-        self.assertEqual(float(profile2.Loan.amount)*float(profile2.Loan.time_remaining), 
+        self.assertEqual(float(profile2.Loan.amount)*float(profile2.Loan.time_remaining),
                          5*(100.0 + float(GlobalConstants.objects.get().loan_interest_rate))/100, 
                          "Loan amount is incorrect")
+        
+        self.assertEqual(float(profile2.capital), float(capital_before_loan) + 5.0,
+                         "Capital is incorrect")
+        
+        self.assertEqual(float(profile2.net_worth), 
+                         float(net_worth_before_loan)-5.0*(float(GlobalConstants.objects.get().loan_interest_rate))/100.0, 
+                         "Net worth is incorrect")
         
         #profile must not have a loan
         self.assertFalse(hasattr(self.profile,'Loan'),"Self.player's loan is invalid")
@@ -405,14 +419,14 @@ class ModelsTestCase(TestCase):
         print "Research successfully tested"
         
         self.assertEqual(float(profile2.capital), 70.0, "Capital should've been 70 Million")
-        self.assertEqual(float(profile2.net_worth), 98.0, "Net worth should've been 98 Million")
+        self.assertEqual(float(profile2.net_worth), 96.0, "Net worth should've been 98 Million")
         
-        profile2.sell_transport(self.transport2.id)
-        profile2.sell_transport(self.transport3.id)
-        profile2.sell_factory(self.prodInd3.id)
-        profile2.sell_factory(self.prodInd2.id)
-        profile2.sell_powerPlant(self.energyInd2.id)
-        profile2.sell_powerPlant(self.energyInd3.id)
+        profile2.sell_transport(profile2.transportcreated_set.get(transport = self.transport2).id)
+        profile2.sell_transport(profile2.transportcreated_set.get(transport = self.transport3).id)
+        profile2.sell_factory(profile2.factory_set.get(type = self.prodInd2).id)
+        profile2.sell_factory(profile2.factory_set.get(type = self.prodInd3).id)
+        profile2.sell_powerPlant(profile2.powerplant_set.get(type = self.energyInd2).id)
+        profile2.sell_powerPlant(profile2.powerplant_set.get(type = self.energyInd3).id)
         
         #Reload models
         profile2 = Profile.objects.get(id = profile2.id)
@@ -421,7 +435,7 @@ class ModelsTestCase(TestCase):
         self.assertEqual(profile2.factory_set.count(), 0, "Both Factories should've been sold")
         self.assertEqual(profile2.powerplant_set.count(), 0, "Both Power Plants should've been sold")
         
-        self.assertEqual(float(profile2.capital), 98.0, "Capital should've been 98 Million")
-        self.assertEqual(float(profile2.net_worth), 98.0, "Net worth should've been 98 Million")
+        self.assertEqual(float(profile2.capital), 96.0, "Capital should've been 100 Million")
+        self.assertEqual(float(profile2.net_worth), 96.0, "Net worth should've been 100 Million")
         
         print "Factories and powerplants successfully tested"

@@ -6,6 +6,7 @@ from industry.models import ProductIndustry, Factory
 from django.core.exceptions import ValidationError
 from game.models import GlobalConstants
 from industry.forms import LoansCreatedForm
+from decimal import Decimal
 from django.db.models import F
 
 #Main game profile class. Proxy for Player class
@@ -17,15 +18,15 @@ class Profile(Player):
         created_transport = TransportCreatedForm({'player':self.id, 'transport':transport, 'states':states})
         ct = created_transport.save()
         self.capital = F('capital') - ct.transport.initial_cost
-        self.net_worth = F('net_worth') - float(ct.transport.initial_cost)*0.2
+        self.net_worth = F('net_worth') - ct.transport.initial_cost*Decimal(0.2)
         self.save()
         LogBook.objects.create(player = self, message = "Bought Transport for Rs. %.2f Million."%ct.transport.initial_cost)
     
     def sell_transport(self, transportcreated):
         ct = self.transportcreated_set.get(pk = transportcreated)
-        amount = float(ct.transport.initial_cost)*0.8
-        self.capital = F('capital') + amount
+        amount = ct.transport.initial_cost*Decimal(0.8)
         ct.delete()
+        self.capital = F('capital') + amount
         self.save()
         LogBook.objects.create(player = self, message = "Sold Transport for Rs. %.2f Million."%amount)
     
@@ -44,15 +45,16 @@ class Profile(Player):
         currentPowerPlant = PowerPlant(type = currentIndustry, 
                                 state = currentState,
                                 player = self,
-                                actual_value = float(currentIndustry.initial_cost)*0.9)
+                                actual_value = currentIndustry.initial_cost*Decimal(0.9))
         currentPowerPlant.full_clean()
         currentPowerPlant.save()
         self.capital = F('capital') - currentIndustry.initial_cost
+        self.net_worth = F('net_worth') - currentIndustry.initial_cost*Decimal(0.1)
         self.save()
         LogBook.objects.create(player = self, message = "Bought Power plant for Rs. %.2f Million."%float(currentIndustry.initial_cost))
     
     def sell_powerPlant(self, powerPlant):
-        currentPowerPlant = self.factory_set.get(pk = powerPlant)
+        currentPowerPlant = self.powerplant_set.get(pk = powerPlant)
         amount = currentPowerPlant.actual_value
         currentPowerPlant.delete()
         self.capital = F('capital') + amount
@@ -65,13 +67,14 @@ class Profile(Player):
         factory = Factory(type = currentIndustry, 
                           state = currentState, 
                           player = self,
-                          selling_price = 1.2*float(currentIndustry.cost_price),
-                          actual_value = float(currentIndustry.initial_cost)*0.9)
+                          selling_price = Decimal(1.2)*currentIndustry.cost_price,
+                          actual_value = currentIndustry.initial_cost*Decimal(0.9))
         factory.full_clean()
         factory.save()
         self.capital = F('capital') - currentIndustry.initial_cost
+        self.net_worth = F('net_worth') - currentIndustry.initial_cost*Decimal(0.1)
         self.save()
-        LogBook.objects.create(player = self, message = "Bought Factory for Rs. %.2f Million."%currentIndustry.initial_cost)
+        LogBook.objects.create(player = self, message = "Bought Factory for Rs. %.2f Million."%float(currentIndustry.initial_cost))
     
     def sell_factory(self, factory):
         currentFactory = self.factory_set.get(pk = factory)
@@ -79,7 +82,7 @@ class Profile(Player):
         currentFactory.delete()
         self.capital = F('capital') + amount
         self.save()
-        LogBook.objects.create(player = self, message = "Sold Factory for Rs. %.2f Million."%amount)
+        LogBook.objects.create(player = self, message = "Sold Factory for Rs. %.2f Million."%float(amount))
     
     def acceptOffer(self):
         if not hasattr(self, 'Offer'):
@@ -108,7 +111,7 @@ class Profile(Player):
     def proposeEnergyOffer(self,player,amount_energy,amount_money):
         engDeal = EnergyDeal(from_player = Player.objects.get(pk = player),
                             to_player = self,
-                            amount_energy = float(amount_energy),
+                            amount_energy = Decimal(amount_energy),
                             cost = amount_money)
         engDeal.full_clean()
         engDeal.save()
@@ -134,12 +137,15 @@ class Profile(Player):
         LogBook.objects.create(player = self, message = "Research Project Cancelled.")
     
     def takeLoan(self,amount,time, industries):
-        loan_amount = amount*(100.0+float(GlobalConstants.objects.get().loan_interest_rate))/100.0
-        currentLoanCreated = LoansCreatedForm({'player':self.id, 'amount':float(loan_amount)/time, 'time_remaining':time, 'mortaged_industries':industries})
+        time = Decimal(time)
+        amount = Decimal(amount)
+        loan_amount = amount*(Decimal(100.0)+GlobalConstants.objects.get().loan_interest_rate)/Decimal(100.0)
+        currentLoanCreated = LoansCreatedForm({'player':self.id, 'amount':loan_amount/time, 'time_remaining':time, 'mortaged_industries':industries})
         currentLoanCreated.save()
         self.capital = F('capital') + amount
         self.net_worth = F('net_worth') - (loan_amount - amount)
         self.save()
+        LogBook.objects.create(player = self, message = "Loan worth %.2f taken"%float(amount))
     
     def payLoan(self,amount):
         if hasattr(self,'Loan'):
