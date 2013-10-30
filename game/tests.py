@@ -405,5 +405,23 @@ class ModelsTestCase(TestCase):
         print "Research successfully tested"
         
         self.assertEqual(float(profile2.capital), 70.0, "Capital should've been 70 Million")
+        self.assertEqual(float(profile2.net_worth), 98.0, "Net worth should've been 98 Million")
+        
+        profile2.sell_transport(self.transport2.id)
+        profile2.sell_transport(self.transport3.id)
+        profile2.sell_factory(self.prodInd3.id)
+        profile2.sell_factory(self.prodInd2.id)
+        profile2.sell_powerPlant(self.energyInd2.id)
+        profile2.sell_powerPlant(self.energyInd3.id)
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.transportcreated_set.count(), 0, "Both Transports should've been sold")
+        self.assertEqual(profile2.factory_set.count(), 0, "Both Factories should've been sold")
+        self.assertEqual(profile2.powerplant_set.count(), 0, "Both Power Plants should've been sold")
+        
+        self.assertEqual(float(profile2.capital), 98.0, "Capital should've been 98 Million")
+        self.assertEqual(float(profile2.net_worth), 98.0, "Net worth should've been 98 Million")
         
         print "Factories and powerplants successfully tested"
