@@ -1,5 +1,5 @@
 from django.db import models
-from industry.models import AbstractIndustry
+from industry.models import AbstractIndustry, check_player_research_level
 from calamity.models import checkStateAvailable
 from transport.models import check_commodity
 # Create your models here.
@@ -23,6 +23,7 @@ class PowerPlant(models.Model):
     def clean(self):
         checkStateAvailable(self)
         check_commodity(self.type, self.player)
+        check_player_research_level(self)
     def annualUpdate(self):#yearly
         self.actual_value *= (100 - self.type.annual_value_decrease)/100
         self.save()

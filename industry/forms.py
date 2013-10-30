@@ -12,6 +12,8 @@ class LoansCreatedForm(forms.ModelForm):
         amount = self.cleaned_data.get('amount')
         time_remaining = self.cleaned_data.get('time_remaining')
         player = self.cleaned_data.get('player')
+        if(amount < 0):
+            raise ValidationError("Amount should be positive")
         if mortaged_industries and amount and time_remaining:
             check_factories(mortaged_industries,amount,time_remaining, player)
         else:

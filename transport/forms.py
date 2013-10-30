@@ -24,7 +24,7 @@ class TransportCreatedForm(forms.ModelForm):
         player = self.cleaned_data.get('player')
         if states and transport and player:
             check_stops(states,transport)
-            check_player(transport,player)
+            check_player(transport,player,states.all())
         else:
             raise ValidationError("Please Enter All Fields")
         return self.cleaned_data

@@ -16,30 +16,40 @@ class Profile(Player):
     def buy_transport(self, transport, states):
         created_transport = TransportCreatedForm({'player':self.id, 'transport':transport, 'states':states})
         ct = created_transport.save()
-        self.capital = F('capital') - ct.type.initial_cost
+        self.capital = F('capital') - ct.transport.initial_cost
+        self.net_worth = F('net_worth') - float(ct.transport.initial_cost)*0.2
         self.save()
-        LogBook.objects.create(player = self, message = "Bought Transport for Rs. %.2f Million."%ct.type.initial_cost)
+        LogBook.objects.create(player = self, message = "Bought Transport for Rs. %.2f Million."%ct.transport.initial_cost)
     
     def sell_transport(self, transportcreated):
         ct = self.transportcreated_set.get(pk = transportcreated)
-        amount = ct.type.initial_cost*0.8
+        amount = float(ct.transport.initial_cost)*0.8
         self.capital = F('capital') + amount
         ct.delete()
         self.save()
         LogBook.objects.create(player = self, message = "Sold Transport for Rs. %.2f Million."%amount)
-
+    
+    def setTransport(self, factory, transport):
+        currentFactory = self.factory_set.get(pk = factory)
+        currentTransport = self.transportcreated_set.get(pk = transport)
+        currentFactory.setTransport(currentTransport)
+    
+    def clearTransport(self, factory):
+        currentFactory = self.factory_set.get(pk = factory)
+        currentFactory.setTransport(None)
+    
     def buy_powerPlant(self,industry,state):
         currentIndustry = EnergyIndustry.objects.get(pk = industry)
         currentState = State.objects.get(pk = state)
         currentPowerPlant = PowerPlant(type = currentIndustry, 
                                 state = currentState,
                                 player = self,
-                                actual_value = currentIndustry.initial_cost*0.9)
+                                actual_value = float(currentIndustry.initial_cost)*0.9)
         currentPowerPlant.full_clean()
         currentPowerPlant.save()
         self.capital = F('capital') - currentIndustry.initial_cost
         self.save()
-        LogBook.objects.create(player = self, message = "Bought Power plant for Rs. %.2f Million."%currentIndustry.initial_cost)
+        LogBook.objects.create(player = self, message = "Bought Power plant for Rs. %.2f Million."%float(currentIndustry.initial_cost))
     
     def sell_powerPlant(self, powerPlant):
         currentPowerPlant = self.factory_set.get(pk = powerPlant)
@@ -47,7 +57,7 @@ class Profile(Player):
         currentPowerPlant.delete()
         self.capital = F('capital') + amount
         self.save()
-        LogBook.objects.create(player = self, message = "Sold Power plant for Rs. %.2f Million."%amount)
+        LogBook.objects.create(player = self, message = "Sold Power plant for Rs. %.2f Million."%float(amount))
     
     def buy_factory(self,industry,state):
         currentIndustry = ProductIndustry.objects.get(pk = industry)
@@ -115,19 +125,20 @@ class Profile(Player):
                                  time_remaining = GlobalConstants.objects.get().initial_research_time*self.research_level)
         resPro.full_clean()
         resPro.save()
-        LogBook.objects.create(player = self.player, message = "Research Project started.")
+        LogBook.objects.create(player = self, message = "Research Project started.")
     
     def endResearch(self):
         if not hasattr(self, 'Research'):
             raise ValidationError("No such Research")
         self.Research.delete()
-        LogBook.objects.create(player = self.player, message = "Research Project Cancelled.")
+        LogBook.objects.create(player = self, message = "Research Project Cancelled.")
     
     def takeLoan(self,amount,time, industries):
         loan_amount = amount*(100.0+float(GlobalConstants.objects.get().loan_interest_rate))/100.0
         currentLoanCreated = LoansCreatedForm({'player':self.id, 'amount':float(loan_amount)/time, 'time_remaining':time, 'mortaged_industries':industries})
         currentLoanCreated.save()
         self.capital = F('capital') + amount
+        self.net_worth = F('net_worth') - (loan_amount - amount)
         self.save()
     
     def payLoan(self,amount):

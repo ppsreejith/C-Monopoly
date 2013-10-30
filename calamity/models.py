@@ -36,3 +36,6 @@ def checkStateAvailable(obj):
     states_list = list(obj.type.states.all())
     if obj.state not in states_list:
         raise ValidationError(str(obj.type) + " not available in " + str(obj.state))
+    if hasattr(obj,'player'):
+        if obj.player.research_level < obj.state.research_level:
+            raise ValidationError("You do not have enough technological capability to access this state.")

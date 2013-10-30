@@ -37,11 +37,13 @@ def check_no_states(states):
     if states.count() < 3:
         raise ValidationError("Need more states")
 
-def check_player(transport,player):
+def check_player(transport,player,states):
     if player.research_level < transport.research_level:
         raise ValidationError("You are not qualified enough to build this transport.")
     if player.transportcreated_set.count() > 3:
         raise ValidationError("You have reached the maximum number of transports possible.")
+    if any(state.research_level > player.research_level for state in states):
+        raise ValidationError("You are not qualified enough to reach some states.")
     check_commodity(transport,player)
 
 def check_commodity(commodity, player):

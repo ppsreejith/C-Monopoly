@@ -47,9 +47,10 @@ class Factory(models.Model):
         checkStateAvailable(self)
         transport_check(self)
         check_commodity(self.type, self.player)
+        check_player_research_level(self)
     
     def annualUpdate(self):#yearly
-        self.actual_value *= (100 - self.type.annual_value_decrease)/100
+        self.actual_value = F('actual_value') * (100 - self.type.annual_value_decrease)/100
         self.save()
     
     def setSellingPrice(self, new_sp):
@@ -62,11 +63,10 @@ class Factory(models.Model):
     def setTransport(self, transportcreated):
         if transportcreated == None:
             self.transport = None
-            self.save()
         else:
-            self.transport = self.player.transportcreated_set.get(pk = transportcreated)
+            self.transport = transportcreated
             transport_check(self)
-            self.save()
+        self.save()
     
     def clearTransport(self):
         self.transport = None
@@ -127,3 +127,7 @@ def transport_check(self):
             raise ValidationError("Transport does not pass through state.")
         if self.transport.player != self.player:
             raise ValidationError("You cant use someone else's transport")
+
+def check_player_research_level(self):
+    if self.player.research_level < self.type.research_level:
+        raise ValidationError("You are not qualified enough to build this Industry.")

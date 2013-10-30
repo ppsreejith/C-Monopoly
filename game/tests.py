@@ -88,14 +88,19 @@ class ModelsTestCase(TestCase):
         s3 = self.state3 = self.createState(name = "Rajasthan",coordx = 10, coordy = 30)
         s4 = self.state4 = self.createState(name = "Andhra Pradesh",coordx = 15, coordy = 20)
         s5 = self.state5 = self.createState(name = "Kashmir",coordx = 10, coordy = 11)
-        self.prodInd1 = self.createProductIndustry(states = [s1,s2,s3,s4])
-        self.prodInd2 = self.createProductIndustry(name = "Rubber",states = [s1,s2,s4,s5])
-        self.energyInd1 = self.createEnergyIndustry(states = [s1,s2,s3,s4])
-        self.energyInd2 = self.createEnergyIndustry(name = "Biofuel",states = [s2,s3,s4,s5])
-        self.transport1 = self.createTransport(states = [s1,s3,s4,s5])
-        self.transport2 = self.createTransport(name = "Road",states = [s1,s2,s4,s5])
-        self.calamity1 = self.createCalamity(states = [s2,s3,s4,s5])
-        self.calamity2 = self.createCalamity(name = "Hurricane",states = [s1,s2,s3,s5])
+        s6 = self.state6 = self.createState(name = "Assam",coordx = 25, coordy = 11, research_level=2)
+        self.prodInd1 = self.createProductIndustry(states = [s1,s2,s3,s4,s6])
+        self.prodInd2 = self.createProductIndustry(name = "Rubber",states = [s1,s2,s4,s5,s6])
+        self.prodInd3 = self.createProductIndustry(name = "Coffee",states = [s1,s2,s4,s5,s6], research_level=2)
+        self.energyInd1 = self.createEnergyIndustry(states = [s1,s2,s3,s4,s6])
+        self.energyInd2 = self.createEnergyIndustry(name = "Biofuel",states = [s1,s2,s3,s4,s5,s6])
+        self.energyInd3 = self.createEnergyIndustry(name = "Hydro",states = [s2,s3,s4,s5,s6], research_level=2)
+        self.transport1 = self.createTransport(states = [s1,s3,s4,s5,s6])
+        self.transport2 = self.createTransport(name = "Ship",states = [s1,s2,s3,s4,s5,s6], max_stops = 4)
+        self.transport3 = self.createTransport(name = "Road",states = [s1,s2,s3,s4,s5,s6], research_level=2)
+        self.calamity1 = self.createCalamity(states = [s2,s3,s4,s5,s6])
+        self.calamity2 = self.createCalamity(name = "Hurricane",states = [s1,s2,s3,s5,s6])
+        self.calamity3 = self.createCalamity(name = "Tsunami",states = [s1,s2,s3,s5,s6])
     
     def test_player(self):
         self.assertEqual(self.profile.capital, GlobalConstants.objects.get().initial_capital, "Default capital is wrong")
@@ -105,8 +110,9 @@ class ModelsTestCase(TestCase):
         try:
             profile2 = self.createUser(2)
             profile3 = self.createUser(2)
+            self.assert_(False, "Two players were created with same user")
         except IntegrityError:
-            self.assertEqual(True, True, "Error: Two profiles were made with the same username.")
+            pass
     
     def test_loan_scenario(self):
         profile2 = self.createUser(3)
@@ -117,6 +123,8 @@ class ModelsTestCase(TestCase):
         except ValidationError:
             pass
         profile2.buy_factory(self.prodInd2.id,self.state4.id)
+        
+        self.assertEqual(profile2.factory_set.count(),3,"profile2 must possess only 3 factories")
         
         values = profile2.factory_set.values_list('id', flat=True)
         values = [int(i) for i in values]
@@ -131,15 +139,22 @@ class ModelsTestCase(TestCase):
         except Exception:
             pass
         
-        self.assertEqual(profile2.factory_set.count(),3,"profile2 must have only 3 factories")
+        #reload profiles
+        profile2 = Profile.objects.get(id = profile2.id)
+        self.profile = Profile.objects.get(id = self.profile.id)
         
-        #profile2's loan must be 5 million
+        self.assertTrue(hasattr(profile2,"Loan"),"Loan should've been successful")
+        self.assertFalse(hasattr(self.profile,"Loan"), "Loan should've failed")
+        self.assertEqual(profile2.Loan.mortaged_industries.count(),2,"profile2 must mortage only 2 factories")
+        
+        #profile2's loan must be 5 million + interest
         self.assertEqual(float(profile2.Loan.amount)*float(profile2.Loan.time_remaining), 
                          5*(100.0 + float(GlobalConstants.objects.get().loan_interest_rate))/100, 
                          "Loan amount is incorrect")
         
         #profile must not have a loan
         self.assertFalse(hasattr(self.profile,'Loan'),"Self.player's loan is invalid")
+        print "Loans successfully tested"
     
     def test_energyDeal(self):
         profile2 = self.createUser(4)
@@ -198,8 +213,197 @@ class ModelsTestCase(TestCase):
         self.assertEqual(float(profile3.capital), 100.5, "TThe energy offer failed")
         self.assertEqual(float(profile2.extra_energy), 8, "The energy offer failed")
         self.assertEqual(float(profile3.extra_energy), 2, "The energy offer failed")
+        print "Energy Deals successfully tested"
     
-    def test_buy_transport(self):
+    def test_transport(self):
         profile2 = self.createUser(6)
-        #profile2.buy_transport(self.transport1.id,State.objects.values_list('id',flat = True))
+        states = State.objects.exclude(pk = self.state6.id).values_list('id',flat = True)
+        states = [int(i) for i in states]
+        try:
+            profile2.buy_transport(self.transport2.id,states)
+        except Exception:
+            pass
         
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.transportcreated_set.count(),0,"Transport shouldn't have been created. (Max stops exceeded reasons)")
+        self.assertEqual(profile2.capital,100.0,"No amount shouldve been deducted")
+        
+        try:
+            profile2.buy_transport(self.transport1.id,states)
+        except Exception:
+            pass
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.transportcreated_set.count(),0,"Transport shouldn't have been created. (Invalid stop reason)")
+        self.assertEqual(profile2.capital,100.0,"No amount should've been deducted")
+        
+        states = State.objects.exclude(id=self.state2.id).exclude(id=self.state6.id).values_list('id',flat = True)
+        states = [int(i) for i in states]
+        
+        profile2.buy_transport(self.transport1.id,states)
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.transportcreated_set.count(),1,"Transport should have been created")
+        self.assertEqual(profile2.capital,95.0,"Amount for transport should be deducted")
+        
+        profile2.buy_factory(self.prodInd1.id,self.state1.id)
+        profile2.buy_factory(self.prodInd1.id,self.state2.id)
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        factory2 = profile2.factory_set.get(state = self.state2)
+        transport = profile2.transportcreated_set.get()
+        
+        try:
+            profile2.setTransport(factory2.id,transport.id)
+        except Exception:
+            pass
+        
+        #reload factory
+        factory2 = profile2.factory_set.get(state = self.state2)
+        
+        self.assertEqual(factory2.transport, None, "Transport assigning should've failed. (Transport doesn't pass through state)")
+        
+        factory = profile2.factory_set.get(state = self.state1)
+        profile2.setTransport(factory.id,transport.id)
+        
+        #reload factory, transport
+        factory = profile2.factory_set.get(state = self.state1)
+        transport = profile2.transportcreated_set.get()
+        
+        self.assertTrue(bool(factory.transport), "Transport should've been assigned")
+        self.assertEqual(factory.transport.id, transport.id, "The earlier transport should've been assigned")
+        
+        profile2.clearTransport(factory.id)
+        
+        #reload factory
+        factory = profile2.factory_set.get(state = self.state2)
+        
+        self.assertEqual(factory.transport, None, "Factory's transport should've been cleared")
+        print "Transports successfully tested"
+    
+    def test_research_and_industries(self):
+        profile2 = self.createUser(7)
+        states = State.objects.exclude(id = self.state6.id).values_list('id',flat = True)
+        states = [int(i) for i in states]
+        try:
+            profile2.buy_transport(self.transport3.id,states)
+        except Exception:
+            pass
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.transportcreated_set.count(), 0, "The transport shouldn't have been created. (Transport is advanced)")
+        
+        states = State.objects.values_list('id',flat = True)[2:]
+        states = [int(i) for i in states]
+        try:
+            profile2.buy_transport(self.transport2.id,states)
+        except Exception:
+            pass
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.transportcreated_set.count(), 0, "The transport shouldn't have been created. (State is advanced)")
+        
+        try:
+            profile2.buy_factory(self.prodInd2.id, self.state6.id)
+        except Exception:
+            pass
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.factory_set.count(), 0, "The factory shouldn't have been created. (State is advanced)")
+        
+        try:
+            profile2.buy_factory(self.prodInd3.id, self.state5.id)
+        except Exception:
+            pass
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.factory_set.count(), 0, "The factory shouldn't have been created. (Industry is advanced)")
+        
+        try:
+            profile2.buy_powerPlant(self.energyInd2.id, self.state6.id)
+        except Exception:
+            pass
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.powerplant_set.count(), 0, "The Power Plant shouldn't have been created. (State is advanced)")
+        
+        try:
+            profile2.buy_powerPlant(self.energyInd3.id, self.state5.id)
+        except Exception:
+            pass
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.powerplant_set.count(), 0, "The Power Plant shouldn't have been created. (Energy Industry is advanced)")
+        
+        profile2.startResearch()
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertTrue(hasattr(profile2, 'Research'), "The research project should've started")
+        
+        profile2.endResearch()
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertFalse(hasattr(profile2, 'Research'), "The research project should've ended")
+        
+        profile2.research_level = 4
+        profile2.save()
+        
+        try:
+            profile2.startResearch()
+        except Exception:
+            pass
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertFalse(hasattr(profile2, 'Research'), "The research project shouldnt've started")
+        
+        profile2.research_level = 2
+        profile2.save()
+        
+        states = State.objects.values_list('id',flat = True)[2:]
+        states = [int(i) for i in states]
+        
+        profile2.buy_transport(self.transport2.id,states)
+        profile2.buy_transport(self.transport3.id,states)
+        profile2.buy_factory(self.prodInd3.id, self.state5.id)
+        profile2.buy_factory(self.prodInd2.id, self.state6.id)
+        profile2.buy_powerPlant(self.energyInd2.id, self.state6.id)
+        profile2.buy_powerPlant(self.energyInd3.id, self.state5.id)
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
+        
+        self.assertEqual(profile2.transportcreated_set.count(), 2, "Both Transports should've been created")
+        self.assertEqual(profile2.factory_set.count(), 2, "Both Factories should've been created")
+        self.assertEqual(profile2.powerplant_set.count(), 2, "Both Power Plants should've been created")
+        
+        print "Research successfully tested"
+        
+        self.assertEqual(float(profile2.capital), 70.0, "Capital should've been 70 Million")
+        
+        print "Factories and powerplants successfully tested"
