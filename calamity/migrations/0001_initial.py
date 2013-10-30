@@ -30,7 +30,7 @@ class Migration(SchemaMigration):
         db.create_table(u'calamity_calamityoccurence', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['calamity.Calamity'])),
-            ('state', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['govt.State'])),
+            ('state', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['govt.State'], unique=True)),
             ('time_remaining', self.gf('django.db.models.fields.PositiveIntegerField')()),
         ))
         db.send_create_signal(u'calamity', ['CalamityOccurence'])
@@ -59,7 +59,7 @@ class Migration(SchemaMigration):
         u'calamity.calamityoccurence': {
             'Meta': {'object_name': 'CalamityOccurence'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'state': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['govt.State']"}),
+            'state': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['govt.State']", 'unique': 'True'}),
             'time_remaining': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['calamity.Calamity']"})
         },

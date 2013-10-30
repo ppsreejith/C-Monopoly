@@ -1,0 +1,28 @@
+from django.db import models
+from django.core.exceptions import ValidationError
+
+#Only one should be instantiated
+class GlobalConstants(models.Model):
+    carbon_buying_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price of carbon. (In thousands)" ) #price of carbon credits.
+    energy_buying_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which energy sold to govt") #price at which energy sold to govt.
+    energy_selling_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which govt sells energy") #price at which govt sells energy
+    tax_rate = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Percentage of revenue as tax.") #revenue tax
+    loan_interest_rate = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Percentage of loan as interest") #Loan Interest Rate
+    vehicle_variable_limit = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Maximum deviation in percentage.") #Variable Vehicle Cost Limit.
+    max_research_level = models.PositiveIntegerField(help_text="Maximum Research Level (Integer)") #Maximum Research Level
+    initial_research_time = models.PositiveIntegerField(help_text = "In number of months (Integer)") # will be multiplied by research level
+    monthly_research_cost = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "In cost per month, in millions") # will be multiplied by research level
+    initial_capital = models.DecimalField(max_digits = 15, decimal_places = 2, help_text = "In millions")
+    def __unicode__(self):
+        return "Global Constants"
+    #Only one global constants instance necessary
+    def clean(self):
+        validate_only_one_instance(self)
+    class Meta:
+        verbose_name = verbose_name_plural = "Global Constants"
+
+#Check if only one instance
+def validate_only_one_instance(obj):
+    model = obj.__class__
+    if model.objects.count() > 0 and  obj.id != model.objects.get().id:
+        raise ValidationError("Can only create 1 %s instance" % model.__name__)

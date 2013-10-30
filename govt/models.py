@@ -1,7 +1,9 @@
+from django.db.models import F
 from django.db import models
 from django.core.exceptions import ValidationError
+from player.models import LogBook, Player
 
-# Create your models here.
+#State model
 class State(models.Model):
     name = models.CharField(max_length = 100, unique = True)
     coordx = models.IntegerField(help_text="X Co-ordinate (Integer)")
@@ -18,87 +20,70 @@ class State(models.Model):
     def __unicode__(self):
         return self.name
 
-class LoansCreated(models.Model):
-    player = models.ForeignKey('player.Player')
-    amount = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In millions")
-    time_remaining = models.PositiveIntegerField(help_text = "In number of months")
-    mortaged_industries = models.ManyToManyField('industry.Factory')
-    def __unicode__(self):
-        return str(self.amount * self.time_remaining) + " million Rs by " + str(self.player)
-    class Meta:
-        verbose_name_plural = "Loans"
-        verbose_name = "Loan"
-    def update(self):
-        if self.player.capital > self.amount + 30:
-            self.player.capital -= self.amount
-            self.player.save()
-            if self.time_remaining <= 1:
-                self.delete()
-            else:
-                self.time_remaining -= 1
-                self.save()
-        else:
-            if self.time_remaining <= 1:
-                self.mortaged_industries.all().delete()
-                self.delete()
-            else:
-                self.amount *= self.time_remaining/(self.time_remaining-1)
-                self.time_remaining -= 1
-                self.player.loan_defaults += 1
-                self.save()
-
+#Acquisition deal between players
 class AquireRecord(models.Model):
-    from_player = models.ForeignKey('player.Player', related_name = 'SellRecord')
-    to_player = models.ForeignKey('player.Player', related_name = 'BuyRecord')
+    to_player = models.OneToOneField(Player, related_name = 'Offer') #Checks for IntegrityError to display acquisition failed.
+    from_player = models.OneToOneField(Player, related_name = 'Acquisition')
     amount = models.DecimalField(max_digits = 15, decimal_places = 5, help_text = "In millions")
-    time = models.DateTimeField('Date and Time')
     def __unicode__(self):
         return str(self.amount) + " Rs for " + str(self.to_player) + " by " + str(self.from_player)
     def clean(self):
         two_different_players(self)
+        check_players_worth(self)
+    def failed(self):
+        LogBook.objects.create(player = self.to_player, message = "Acquisition Rejected.")
+        self.delete()
 
+#Energy deal between players.
+#Energy transferred from `from_player` to `to_player`
 class EnergyDeal(models.Model):
-    from_player = models.ForeignKey('player.Player', related_name = 'SoldEnergy')
-    to_player = models.ForeignKey('player.Player', related_name = 'BoughtEnergy')
+    from_player = models.ForeignKey(Player, related_name = 'EnergyOffer')
+    to_player = models.OneToOneField(Player, related_name = 'EnergyContract')
     amount_energy = models.PositiveIntegerField(help_text = "Number of units of energy (Integer)")
-    time = models.DateTimeField('Date and Time')
     cost = models.DecimalField(max_digits = 15, decimal_places = 5, help_text = "In millions")
     def __unicode__(self):
-        return str(self.amount) + " Rs for " + str(self.to_player) + " by " + str(self.from_player)
+        return str(self.cost) + " Rs for " + str(self.to_player) + " by " + str(self.from_player)
     def clean(self):
         two_different_players(self)
-
-#Only one should be instantiated
-class GlobalConstants(models.Model):
-    carbon_buying_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which carbon sold to govt" ) #price at which carbon sold to govt
-    carbon_selling_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which govt sells carbon") #price at which govt sells carbon
-    energy_buying_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which energy sold to govt") #price at which energy sold to govt
-    energy_selling_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which govt sells energy") #price at which govt sells energy
-    tax_rate = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Percentage of revenue as tax.") #revenue tax
-    loan_interest_rate = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Percentage of loan as interest") #Loan Interest Rate
-    vehicle_variable_limit = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Maximum deviation in percentage.") #Variable Vehicle Cost Limit.
-    max_research_level = models.PositiveIntegerField(help_text="Maximum Research Level (Integer)") #Maximum Research Level
-    initial_research_time = models.PositiveIntegerField(help_text = "In number of months (Integer)") # will be multiplied by research level
-    monthly_research_cost = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "In cost per month, in millions") # will be multiplied by research level
-    def __unicode__(self):
-        return "Global Constants"
-    #Only one global constants instance necessary
-    def clean(self):
-        validate_only_one_instance(self)
-    class Meta:
-        verbose_name = verbose_name_plural = "Global Constants"
-
-#Check if only one instance
-def validate_only_one_instance(obj):
-    model = obj.__class__
-    if model.objects.count() > 0 and  obj.id != model.objects.get().id:
-        raise ValidationError("Can only create 1 %s instance" % model.__name__)
+        check_players_amounts(self)
+    def accept(self):
+        check_players_amounts(self)
+        self.from_player.capital = F('capital') + float(self.cost)
+        self.to_player.capital = F('capital') - float(self.cost)
+        self.from_player.extra_energy = F('extra_energy') - float(self.amount_energy)
+        self.to_player.extra_energy = F('extra_energy') + float(self.amount_energy)
+        self.from_player.save()
+        self.to_player.save()
+        LogBook.objects.create(player = self.to_player, message = "%.2f Million spent in buying energy."%self.cost)
+        self.delete()
+    def reject(self):
+        LogBook.objects.create(player = self.to_player, message = "Energy deal rejected.")
+        self.delete()
 
 #Check if two different players
 def two_different_players(obj):
     #foreign key validation
     if not hasattr(obj, 'from_player') or not hasattr(obj, 'to_player') or obj.from_player == obj.to_player:
         raise ValidationError("Two different players needed.")
+
+#check on the players constraints
+def check_players_worth(obj):
+    if float(obj.to_player.net_worth) < 500.0:
+        raise ValidationError("Cannot buy Industry worth less than 500 Million")
+    if float(obj.from_player.capital) < float(obj.amount) + 30.0:
+        raise ValidationError("You cannot afford it")
+    if obj.amount < obj.to_player.net_worth - obj.to_player.capital:
+        raise ValidationError("You cannot buy it for less than what he is worth.")
+    if hasattr(obj.to_player, 'Loan'):
+        raise ValidationError("The user still has loans left to pay.")
+
+def check_players_amounts(obj):
+    if not obj.from_player.selling_energy:
+        raise ValidationError("Energy not for sale")
+    if obj.from_player.extra_energy < obj.amount_energy:
+        raise ValidationError("Not enough energy to sell.")
+    if float(obj.to_player.capital) < float(obj.cost) + 30:
+        raise ValidationError("You can't afford it.")
 
 #selling prices should be lesser than buying price.
 def check_price(obj):
@@ -108,12 +93,8 @@ def check_price(obj):
         raise ValidationError("Energy buying price bigger than carbon selling price")
 
 #Check if factories not already under loan
-def check_factories(mortaged_industries,pk,amount,time_remaining,player):
-    all_industries = mortaged_industries.all()
-    if not LoansCreated.objects.filter(mortaged_industries__in = all_industries).distinct().exclude(pk = pk).exists():
-        if all_industries.aggregate(sum = models.Sum('actual_value'))['sum'] < amount*time_remaining:
-            raise ValidationError("Loan amount requested is too large.")
-        if all_industries.exclude(player = player).exists():
-            raise ValidationError("You can only mortage your own industries")
-    else:
-        raise ValidationError("You can't mortage a factory twice!")
+def check_factories(mortaged_industries,amount,time_remaining,player):
+    if mortaged_industries.exclude(player = player).exists():
+        raise ValidationError("You can only mortage your own industries")
+    if mortaged_industries.aggregate(sum = models.Sum('actual_value'))['sum'] < amount*time_remaining:
+        raise ValidationError("Loan amount requested is too large.")

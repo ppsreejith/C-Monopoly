@@ -12,16 +12,18 @@ class Calamity(models.Model):
     probability_number = models.PositiveIntegerField(help_text = "An Integer from 1 to 100")
     def __unicode__(self):
         return self.name
+    class Meta:
+        verbose_name_plural = "Calamities"
 
 class CalamityOccurence(models.Model):
     type = models.ForeignKey(Calamity)
-    state = models.ForeignKey('govt.State')
+    state = models.OneToOneField('govt.State')
     time_remaining = models.PositiveIntegerField(help_text = "Number of months remaining (Integer)")
     def __unicode__(self):
         return str(self.type) + " in " + str(self.state)
     def clean(self):
         checkStateAvailable(self)
-    def update(self):
+    def monthlyUpdate(self):
         if self.time_remaining == 0:
             self.delete()
         else:

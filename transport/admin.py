@@ -5,7 +5,7 @@ from transport.forms import TransportForm, TransportCreatedForm
 #Admin module for Transport
 
 class TransportAdmin(admin.ModelAdmin):
-    list_display = ['name','minimum_cost','travel_rate']
+    list_display = ['name','initial_cost','travel_rate']
     search_fields = ['name','states__name']
     form = TransportForm
 
