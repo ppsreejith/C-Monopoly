@@ -12,7 +12,7 @@ class AbstractIndustry(models.Model):
     states = models.ManyToManyField(State)
     carbon_per_unit = models.DecimalField(max_digits = 10, decimal_places = 5)
     initial_cost = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Millions")
-    maintenance_cost = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Thousands")
+    maintenance_cost = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Millions")
     research_level = models.PositiveIntegerField(help_text="Typically a small integer.")
     annual_value_decrease = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Rate of value loss, yearly.")
     class Meta:
@@ -40,6 +40,23 @@ class Factory(models.Model):
     shut_down = models.BooleanField(default = False)
     class Meta:
         verbose_name_plural = "Factories"
+    
+    def restart(self):
+        if not self.shut_down:
+            raise ValidationError("Factory is still running")
+        else:
+            if self.type.maintenance_cost > self.player.capital - 30:
+                raise ValidationError("You can't afford it")
+            else:
+                self.player.capital = F('capital') - self.type.maintenance_cost
+                self.player.netWorth = F('netWorth') - self.type.maintenance_cost
+                self.player.save()
+                self.shut_down = False
+                self.save()
+    
+    def shutdown(self):
+        self.shut_down = True
+        self.save()
     
     def __unicode__(self):
         return str(self.type) + " by " + str(self.player)

@@ -148,7 +148,7 @@ class Migration(SchemaMigration):
             'last_month_total': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'loan_defaults': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'monthly_carbon_total': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'net_worth': ('django.db.models.fields.DecimalField', [], {'default': '100', 'max_digits': '15', 'decimal_places': '2'}),
+            'netWorth': ('django.db.models.fields.DecimalField', [], {'default': '100', 'max_digits': '15', 'decimal_places': '2'}),
             'research_level': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
             'shutdown': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'suspended': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),

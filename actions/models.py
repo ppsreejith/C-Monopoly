@@ -18,7 +18,7 @@ class Profile(Player):
         created_transport = TransportCreatedForm({'player':self.id, 'transport':transport, 'states':states})
         ct = created_transport.save()
         self.capital = F('capital') - ct.transport.initial_cost
-        self.net_worth = F('net_worth') - ct.transport.initial_cost*Decimal(0.2)
+        self.netWorth = F('netWorth') - ct.transport.initial_cost*Decimal(0.2)
         self.save()
         LogBook.objects.create(player = self, message = "Bought Transport for Rs. %.2f Million."%ct.transport.initial_cost)
     
@@ -49,7 +49,7 @@ class Profile(Player):
         currentPowerPlant.full_clean()
         currentPowerPlant.save()
         self.capital = F('capital') - currentIndustry.initial_cost
-        self.net_worth = F('net_worth') - currentIndustry.initial_cost*Decimal(0.1)
+        self.netWorth = F('netWorth') - currentIndustry.initial_cost*Decimal(0.1)
         self.save()
         LogBook.objects.create(player = self, message = "Bought Power plant for Rs. %.2f Million."%float(currentIndustry.initial_cost))
     
@@ -72,7 +72,7 @@ class Profile(Player):
         factory.full_clean()
         factory.save()
         self.capital = F('capital') - currentIndustry.initial_cost
-        self.net_worth = F('net_worth') - currentIndustry.initial_cost*Decimal(0.1)
+        self.netWorth = F('netWorth') - currentIndustry.initial_cost*Decimal(0.1)
         self.save()
         LogBook.objects.create(player = self, message = "Bought Factory for Rs. %.2f Million."%float(currentIndustry.initial_cost))
     
@@ -83,6 +83,26 @@ class Profile(Player):
         self.capital = F('capital') + amount
         self.save()
         LogBook.objects.create(player = self, message = "Sold Factory for Rs. %.2f Million."%float(amount))
+    
+    def shutdownFactory(self,factory):
+        currentFactory = self.factory_set.get(pk = factory)
+        currentFactory.shutdown()
+        LogBook.objects.create(player = self, message = "Shutdown factory in %s"%currentFactory.state.name)
+    
+    def restartFactory(self,factory):
+        currentFactory = self.factory_set.get(pk = factory)
+        currentFactory.restart()
+        LogBook.objects.create(player = self, message = "Restarted factory in %s"%currentFactory.state.name)
+    
+    def shutdownPowerPlant(self,powerplant):
+        currentPowerPlant = self.powerplant_set.get(pk = powerplant)
+        currentPowerPlant.shutdown()
+        LogBook.objects.create(player = self, message = "Shutdown Power plant in %s"%currentPowerPlant.state.name)
+    
+    def restartPowerPlant(self,powerplant):
+        currentPowerPlant = self.powerplant_set.get(pk = powerplant)
+        currentPowerPlant.restart()
+        LogBook.objects.create(player = self, message = "Restarted Power plant in %s"%currentPowerPlant.state.name)
     
     def acceptOffer(self):
         if not hasattr(self, 'Offer'):
@@ -143,7 +163,7 @@ class Profile(Player):
         currentLoanCreated = LoansCreatedForm({'player':self.id, 'amount':loan_amount/time, 'time_remaining':time, 'mortaged_industries':industries})
         currentLoanCreated.save()
         self.capital = F('capital') + amount
-        self.net_worth = F('net_worth') - (loan_amount - amount)
+        self.netWorth = F('netWorth') - (loan_amount - amount)
         self.save()
         LogBook.objects.create(player = self, message = "Loan worth %.2f taken"%float(amount))
     

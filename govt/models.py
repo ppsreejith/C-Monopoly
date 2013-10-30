@@ -68,11 +68,11 @@ def two_different_players(obj):
 
 #check on the players constraints
 def check_players_worth(obj):
-    if float(obj.to_player.net_worth) < 500.0:
+    if float(obj.to_player.netWorth) < 500.0:
         raise ValidationError("Cannot buy Industry worth less than 500 Million")
     if float(obj.from_player.capital) < float(obj.amount) + 30.0:
         raise ValidationError("You cannot afford it")
-    if obj.amount < obj.to_player.net_worth - obj.to_player.capital:
+    if obj.amount < obj.to_player.netWorth - obj.to_player.capital:
         raise ValidationError("You cannot buy it for less than what he is worth.")
     if hasattr(obj.to_player, 'Loan'):
         raise ValidationError("The user still has loans left to pay.")

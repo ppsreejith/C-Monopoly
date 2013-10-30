@@ -21,7 +21,7 @@ class ModelsTestCase(TestCase):
     
     def createProductIndustry(self,name = "Coconut",maintenance_energy = 4,energy_per_unit = 0.5,
                               unit = "Pieces",research_level = 1,annual_value_decrease = 5.4,cost_price = 1,
-                              maintenance_cost = 40,initial_cost = 5,carbon_per_unit = 0.003,states = [1,2,3,4]):
+                              maintenance_cost = 1,initial_cost = 5,carbon_per_unit = 0.003,states = [1,2,3,4]):
         industry = ProductIndustry(name = name,maintenance_energy = maintenance_energy,cost_price = cost_price,
                                    energy_per_unit = energy_per_unit,unit = unit,research_level = research_level,
                                    annual_value_decrease = annual_value_decrease,maintenance_cost = maintenance_cost,
@@ -31,7 +31,7 @@ class ModelsTestCase(TestCase):
         return industry
     
     def createEnergyIndustry(self,name = "Coal",research_level = 1,output = 5,
-                             annual_value_decrease = 5.4,maintenance_cost = 40,initial_cost = 5,
+                             annual_value_decrease = 5.4,maintenance_cost = 1,initial_cost = 5,
                              carbon_per_unit = 0.003,states = [1,2,3,4]):
         industry = EnergyIndustry(name = name,research_level = research_level,output = output,
                                    annual_value_decrease = annual_value_decrease,maintenance_cost = maintenance_cost,
@@ -77,7 +77,7 @@ class ModelsTestCase(TestCase):
                                           max_research_level = 4,
                                           initial_research_time = 8,
                                           monthly_research_cost = 80,
-                                          initial_capital = 100)
+                                          initial_capital = 100,)
         globalConstants.full_clean()
         globalConstants.save()
         
@@ -104,7 +104,7 @@ class ModelsTestCase(TestCase):
     
     def test_player(self):
         self.assertEqual(self.profile.capital, GlobalConstants.objects.get().initial_capital, "Default capital is wrong")
-        self.assertEqual(self.profile.net_worth, GlobalConstants.objects.get().initial_capital, "Default net worth is wrong")
+        self.assertEqual(self.profile.netWorth, GlobalConstants.objects.get().initial_capital, "Default net worth is wrong")
         
         #Test if two seperate players can be made with same values
         try:
@@ -134,7 +134,7 @@ class ModelsTestCase(TestCase):
         self.profile = Profile.objects.get(id = self.profile.id)
         
         capital_before_loan = profile2.capital
-        net_worth_before_loan = profile2.net_worth
+        netWorth_before_loan = profile2.netWorth
         
         try:
             profile2.takeLoan(100,12,values)
@@ -162,8 +162,8 @@ class ModelsTestCase(TestCase):
         self.assertEqual(float(profile2.capital), float(capital_before_loan) + 5.0,
                          "Capital is incorrect")
         
-        self.assertEqual(float(profile2.net_worth), 
-                         float(net_worth_before_loan)-5.0*(float(GlobalConstants.objects.get().loan_interest_rate))/100.0, 
+        self.assertEqual(float(profile2.netWorth), 
+                         float(netWorth_before_loan)-5.0*(float(GlobalConstants.objects.get().loan_interest_rate))/100.0, 
                          "Net worth is incorrect")
         
         #profile must not have a loan
@@ -419,7 +419,20 @@ class ModelsTestCase(TestCase):
         print "Research successfully tested"
         
         self.assertEqual(float(profile2.capital), 70.0, "Capital should've been 70 Million")
-        self.assertEqual(float(profile2.net_worth), 96.0, "Net worth should've been 98 Million")
+        self.assertEqual(float(profile2.netWorth), 96.0, "Net worth should've been 98 Million")
+        
+        profile2.shutdownFactory(profile2.factory_set.get(type = self.prodInd2).id)
+        self.assertTrue(profile2.factory_set.get(type=self.prodInd2).shut_down, "Factory should've shut down")
+        profile2.restartFactory(profile2.factory_set.get(type = self.prodInd2).id)
+        self.assertFalse(profile2.factory_set.get(type=self.prodInd2).shut_down, "Factory should've started")
+        
+        profile2.shutdownPowerPlant(profile2.powerplant_set.get(type = self.energyInd2).id)
+        self.assertTrue(profile2.powerplant_set.get(type=self.energyInd2).shut_down, "Power plant should've shut down")
+        profile2.restartPowerPlant(profile2.powerplant_set.get(type = self.energyInd2).id)
+        self.assertFalse(profile2.powerplant_set.get(type=self.energyInd2).shut_down, "Power plant should've started")
+        
+        #Reload models
+        profile2 = Profile.objects.get(id = profile2.id)
         
         profile2.sell_transport(profile2.transportcreated_set.get(transport = self.transport2).id)
         profile2.sell_transport(profile2.transportcreated_set.get(transport = self.transport3).id)
@@ -435,7 +448,7 @@ class ModelsTestCase(TestCase):
         self.assertEqual(profile2.factory_set.count(), 0, "Both Factories should've been sold")
         self.assertEqual(profile2.powerplant_set.count(), 0, "Both Power Plants should've been sold")
         
-        self.assertEqual(float(profile2.capital), 96.0, "Capital should've been 100 Million")
-        self.assertEqual(float(profile2.net_worth), 96.0, "Net worth should've been 100 Million")
+        self.assertEqual(float(profile2.capital), 94.0, "Capital should've been 100 Million")
+        self.assertEqual(float(profile2.netWorth), 94.0, "Net worth should've been 100 Million")
         
         print "Factories and powerplants successfully tested"

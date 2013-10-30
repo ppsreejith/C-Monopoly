@@ -8,23 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'Player.shutdown'
-        db.delete_column(u'player_player', 'shutdown')
-
-        # Adding field 'Player.selling_energy'
-        db.add_column(u'player_player', 'selling_energy',
+        # Adding field 'PowerPlant.shut_down'
+        db.add_column(u'energy_powerplant', 'shut_down',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Adding field 'Player.shutdown'
-        db.add_column(u'player_player', 'shutdown',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
-                      keep_default=False)
-
-        # Deleting field 'Player.selling_energy'
-        db.delete_column(u'player_player', 'selling_energy')
+        # Deleting field 'PowerPlant.shut_down'
+        db.delete_column(u'energy_powerplant', 'shut_down')
 
 
     models = {
@@ -64,12 +56,40 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        u'player.logbook': {
-            'Meta': {'object_name': 'LogBook'},
-            'datetime': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+        u'energy.energyindustry': {
+            'Meta': {'object_name': 'EnergyIndustry'},
+            'annual_value_decrease': ('django.db.models.fields.DecimalField', [], {'max_digits': '5', 'decimal_places': '2'}),
+            'carbon_per_unit': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '5'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'message': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
-            'player': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['player.Player']"})
+            'initial_cost': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '2'}),
+            'maintenance_cost': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '2'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
+            'output': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'research_level': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'states': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['govt.State']", 'symmetrical': 'False'})
+        },
+        u'energy.powerplant': {
+            'Meta': {'object_name': 'PowerPlant'},
+            'actual_value': ('django.db.models.fields.DecimalField', [], {'max_digits': '9', 'decimal_places': '2'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'player': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['player.Player']"}),
+            'shut_down': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'state': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['govt.State']"}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['energy.EnergyIndustry']"})
+        },
+        u'govt.state': {
+            'Meta': {'unique_together': "(('coordx', 'coordy'),)", 'object_name': 'State'},
+            'capacity': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'coordx': ('django.db.models.fields.IntegerField', [], {}),
+            'coordy': ('django.db.models.fields.IntegerField', [], {}),
+            'energy_plant_capacity': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'growth_rate': ('django.db.models.fields.DecimalField', [], {'max_digits': '9', 'decimal_places': '4'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'income': ('django.db.models.fields.DecimalField', [], {'max_digits': '9', 'decimal_places': '2'}),
+            'income_growth_rate': ('django.db.models.fields.DecimalField', [], {'max_digits': '9', 'decimal_places': '4'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
+            'population': ('django.db.models.fields.DecimalField', [], {'max_digits': '9', 'decimal_places': '2'}),
+            'research_level': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         u'player.player': {
             'Meta': {'object_name': 'Player'},
@@ -88,13 +108,7 @@ class Migration(SchemaMigration):
             'suspended': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'}),
             'user_login_id': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'})
-        },
-        u'player.researchproject': {
-            'Meta': {'object_name': 'ResearchProject'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'player': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'Research'", 'unique': 'True', 'to': u"orm['player.Player']"}),
-            'time_remaining': ('django.db.models.fields.PositiveIntegerField', [], {'default': '8L'})
         }
     }
 
-    complete_apps = ['player']
+    complete_apps = ['energy']

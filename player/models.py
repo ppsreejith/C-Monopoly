@@ -7,7 +7,7 @@ from game.models import GlobalConstants
 class Player(models.Model):
     monthly_carbon_total = models.IntegerField(help_text = "In Integers.", default = 0)
     last_month_total = models.IntegerField(help_text = "In Integers.", default = 0)
-    net_worth = models.DecimalField(max_digits = 15, decimal_places = 2, help_text = "In millions", default = lambda:GlobalConstants.objects.get().initial_capital)
+    netWorth = models.DecimalField(max_digits = 15, decimal_places = 2, help_text = "In millions", default = lambda:GlobalConstants.objects.get().initial_capital)
     capital = models.DecimalField(max_digits = 15, decimal_places = 2, help_text = "In millions", default = lambda:GlobalConstants.objects.get().initial_capital)
     research_level = models.PositiveIntegerField(help_text = "Typically a small number (Integer)", default = 1)
     brand = models.DecimalField(max_digits = 4, decimal_places = 2, help_text = "Typically a small number", default = 5)#Goodwill among the people
