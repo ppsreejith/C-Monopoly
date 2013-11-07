@@ -1,0 +1,66 @@
+<!doctype html />
+<html>
+{% load static %}
+	<head>
+		<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300" rel="stylesheet" type="text/css">
+		<link href="{% static "css/global.css" %}" rel="stylesheet" type="text/css">
+		<title>C-Monopoly</title>
+		<script type="text/javascript">static_prefix = "{% get_static_prefix %}";</script>
+		<script type="text/javascript" src="{% static "js/require.js" %}" data-main="{% static "js/main.js" %}" ></script>
+	</head>
+	<body>
+		<img class="splashScreen" src="{% static "images/logo.png" %}" />
+		<div class="bigWrapper">
+			<div class="notifBar"></div>
+			<div class="topBar">
+				<img src="{% static "images/logo.png" %}" class="logo"/>
+				<nav class="navigation">
+					<a href="#game">Home</a>
+					<a href="#about">About us</a>
+					<a href="#rules">Rules</a>
+				</nav>
+			</div>
+			<div class="menuBar">
+				<nav class="gameNavigation">
+					<a href="#game/industries">Industries</a>
+					<a href="#game/transports">Transport</a>
+					<a href="#game/govt">Government</a>
+					<a href="#game/office">Office</a>
+					<a href="#game/leaderboard">Leaderboard</a>
+				</nav>
+			</div>
+			<div class="mainBar">
+				<div class="gameScreen mainScreen active">
+					<div class="industriesInfo screenInfo active">
+						<div class="leftInfo"></div>
+						<div class="middleInfo indiaMap">
+							
+						</div>
+						<div class="rightInfo"></div>
+					</div>
+					<div class="transportsInfo screenInfo">
+						<div class="leftInfo"></div>
+						<div class="middleInfo"></div>
+						<div class="rightInfo"></div>
+					</div>
+					<div class="govtInfo screenInfo">
+						<div class="leftInfo"></div>
+						<div class="middleInfo"></div>
+						<div class="rightInfo"></div>
+					</div>
+					<div class="officeInfo screenInfo">
+						<div class="leftInfo"></div>
+						<div class="middleInfo"></div>
+						<div class="rightInfo"></div>
+					</div>
+					<div class="leaderboardInfo screenInfo">
+						<div class="middleLeftInfo"></div>
+						<div class="rightInfo"></div>
+					</div>
+				</div>
+				<div class="aboutScreen mainScreen"></div>
+				<div class="rulesScreen mainScreen"></div>
+			</div>
+		</div>
+	</body>
+</html>

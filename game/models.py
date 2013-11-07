@@ -17,6 +17,8 @@ class GlobalConstants(models.Model):
     current_day = models.PositiveIntegerField(default = 1)
     current_month = models.PositiveIntegerField(default = 1)
     current_year = models.PositiveIntegerField(default = 1970)
+    max_factories = models.PositiveIntegerField(default = 20)
+    max_powerplants = models.PositiveIntegerField(default = 20)
     def __unicode__(self):
         return "Global Constants"
     #Only one global constants instance necessary
@@ -26,19 +28,21 @@ class GlobalConstants(models.Model):
         verbose_name = verbose_name_plural = "Global Constants"
     
     def nextDay(self):
-        if self.current_day == 30 and self.current_month in [4,6,9,11]:
+        if self.current_day >= 30 and self.current_month in [4,6,9,11]:
             self.current_day = 1
             self.current_month = F('current_month') + 1
-        elif self.current_day == 31 and self.current_month in [1,3,5,7,8,10,12]:
+        elif self.current_day >= 31 and self.current_month in [1,3,5,7,8,10,12]:
             self.current_day = 1
             if self.current_month == 12:
                 self.current_year = F('current_year') + 1
                 self.current_month = 1
             else:
                 self.current_month = F('current_month') + 1
-        elif self.current_day == 28 and self.current_month == 2:
+        elif self.current_day >= 28 and self.current_month == 2:
             self.current_day = 1
             self.current_month = 3
+        elif self.current_month > 12:
+            self.current_month = 1
         else:
             self.current_day = F('current_day') + 1
         self.save()

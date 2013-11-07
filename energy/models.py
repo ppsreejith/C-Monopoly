@@ -4,6 +4,7 @@ from industry.models import AbstractIndustry, check_player_research_level
 from calamity.models import checkStateAvailable
 from transport.models import check_commodity
 from django.core.exceptions import ValidationError
+from game.models import GlobalConstants
 # Create your models here.
 
 #see industry.models.Industry for more general properties.
@@ -27,6 +28,7 @@ class PowerPlant(models.Model):
         checkStateAvailable(self)
         check_commodity(self.type, self.player)
         check_player_research_level(self)
+        check_no_powerplants(self.player)
     def annualUpdate(self):#yearly
         self.actual_value *= (100 - self.type.annual_value_decrease)/100
         self.save()
@@ -47,3 +49,8 @@ class PowerPlant(models.Model):
     def shutdown(self):
         self.shut_down = True
         self.save()
+
+def check_no_powerplants(player):
+    max_plants = int(GlobalConstants.objects.values_list('max_powerplants',flat = True)[0])
+    if player.factory_set.count() >= max_plants:
+        raise ValidationError("You can't own more than %d powerplants!"%max_plants)

@@ -15,11 +15,11 @@ class Profile(Player):
         proxy = True
     
     def buy_transport(self, transport, states):
-        created_transport = TransportCreatedForm({'player':self.id, 'transport':transport, 'states':states})
-        ct = created_transport.save()
+        ct = TransportCreatedForm({'player':self.id, 'transport':transport, 'states':states, 'distance':0}).save()
         self.capital = F('capital') - ct.transport.initial_cost
         self.netWorth = F('netWorth') - ct.transport.initial_cost*Decimal(0.2)
         self.save()
+        ct.setDistance()
         LogBook.objects.create(player = self, message = "Bought Transport for Rs. %.2f Million."%ct.transport.initial_cost)
     
     def sell_transport(self, transportcreated):
@@ -78,6 +78,9 @@ class Profile(Player):
     
     def sell_factory(self, factory):
         currentFactory = self.factory_set.get(pk = factory)
+        if hasattr(self, 'Loan'):
+            if currentFactory in self.Loan.mortaged_industries.all():
+                raise ValidationError("Can't sell off a mortaged Factory")
         amount = currentFactory.actual_value
         currentFactory.delete()
         self.capital = F('capital') + amount
@@ -127,6 +130,14 @@ class Profile(Player):
     def acceptEnergyOffer(self,energyOffer):
         offer = self.EnergyOffer.get(pk = energyOffer)
         offer.accept()
+    
+    def buyEnergy(self,amount_energy):
+        glo = GlobalConstants.objects.get()
+        if self.capital < amount_energy*glo.energy_selling_price + Decimal(30):
+            raise ValidationError("You can't afford it")
+        self.capital = F('capital') - amount_energy*glo.energy_selling_price
+        self.extra_energy = F('extra_energy') + amount_energy
+        self.save()
     
     def proposeEnergyOffer(self,player,amount_energy,amount_money):
         engDeal = EnergyDeal(from_player = Player.objects.get(pk = player),

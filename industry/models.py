@@ -5,12 +5,13 @@ from calamity.models import checkStateAvailable
 from transport.models import check_commodity, TransportCreated
 from player.models import Player, LogBook
 from govt.models import State
+from game.models import GlobalConstants
 
 #This is an abstract class
 class AbstractIndustry(models.Model):
     name = models.CharField(max_length = 100, unique = True)
     states = models.ManyToManyField(State)
-    carbon_per_unit = models.DecimalField(max_digits = 10, decimal_places = 5)
+    carbon_per_unit = models.DecimalField(max_digits = 15, decimal_places = 5)
     initial_cost = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Millions")
     maintenance_cost = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Millions")
     research_level = models.PositiveIntegerField(help_text="Typically a small integer.")
@@ -20,7 +21,7 @@ class AbstractIndustry(models.Model):
 
 class ProductIndustry(AbstractIndustry):
     cost_price = models.DecimalField(max_digits = 10, decimal_places = 5, help_text = "In Thousands")
-    maintenance_energy = models.PositiveIntegerField(help_text="In number of units of energy (Integer)")
+    maintenance_energy = models.DecimalField(max_digits = 10, decimal_places = 5,help_text="In number of units of energy (Integer)")
     energy_per_unit = models.DecimalField(max_digits = 10, decimal_places = 5)
     unit = models.CharField(max_length = 50)
     def __unicode__(self):
@@ -36,7 +37,7 @@ class Factory(models.Model):
     player = models.ForeignKey(Player)
     selling_price = models.DecimalField(max_digits = 10, decimal_places = 5, help_text="In thousands")
     actual_value = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Millions")
-    products_last_month = models.PositiveIntegerField(default = 0)
+    products_last_day = models.PositiveIntegerField(default = 0)
     shut_down = models.BooleanField(default = False)
     class Meta:
         verbose_name_plural = "Factories"
@@ -65,6 +66,7 @@ class Factory(models.Model):
         transport_check(self)
         check_commodity(self.type, self.player)
         check_player_research_level(self)
+        check_no_factories(self.player)
     
     def annualUpdate(self):#yearly
         self.actual_value = F('actual_value') * (100 - self.type.annual_value_decrease)/100
@@ -148,3 +150,8 @@ def transport_check(self):
 def check_player_research_level(self):
     if self.player.research_level < self.type.research_level:
         raise ValidationError("You are not qualified enough to build this Industry.")
+
+def check_no_factories(player):
+    max_fact = int(GlobalConstants.objects.values_list('max_factories',flat = True)[0])
+    if player.factory_set.count() >= max_fact:
+        raise ValidationError("You can't own more than %d factories!"%max_fact)

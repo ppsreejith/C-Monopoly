@@ -1,0 +1,5 @@
+define(['models/rank'],function(RankList{
+
+    
+
+}));

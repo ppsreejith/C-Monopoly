@@ -2,6 +2,7 @@ from django.db.models import F
 from django.db import models
 from django.core.exceptions import ValidationError
 from player.models import LogBook, Player
+from decimal import Decimal
 
 #State model
 class State(models.Model):
@@ -19,6 +20,9 @@ class State(models.Model):
         unique_together = ('coordx','coordy',)
     def __unicode__(self):
         return self.name
+    def annualUpdate(self):
+        self.income = F('income')*(Decimal(100)+F('income_growth_rate'))/Decimal(100)
+        self.population = F('population')*(Decimal(100)+F('growth_rate'))/Decimal(100)
 
 #Acquisition deal between players
 class AquireRecord(models.Model):

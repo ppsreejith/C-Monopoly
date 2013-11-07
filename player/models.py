@@ -11,8 +11,8 @@ class Player(models.Model):
     capital = models.DecimalField(max_digits = 15, decimal_places = 2, help_text = "In millions", default = lambda:GlobalConstants.objects.get().initial_capital)
     research_level = models.PositiveIntegerField(help_text = "Typically a small number (Integer)", default = 1)
     brand = models.DecimalField(max_digits = 4, decimal_places = 2, help_text = "Typically a small number", default = 5)#Goodwill among the people
-    extra_energy = models.PositiveIntegerField(help_text = "Typically a small number (Integer)", default = 5)
-    energy_capacity = models.PositiveIntegerField(help_text = "Typically a small number (Integer)", default = 30)
+    extra_energy = models.DecimalField(max_digits = 10, decimal_places = 5, help_text = "Typically a small number (Integer)", default = 50)
+    energy_capacity = models.PositiveIntegerField(help_text = "Typically a small number (Integer)", default = 300)
     loan_defaults = models.IntegerField(help_text = "Typically a small number (Integer)", default = 0)
     suspended = models.BooleanField(default = False)
     selling_energy = models.BooleanField(default = False)

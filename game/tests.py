@@ -3,68 +3,81 @@ from game.models import GlobalConstants
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from actions.models import Profile
-from industry.models import ProductIndustry
+from industry.models import ProductIndustry, Factory
 from govt.models import State
 from energy.models import EnergyIndustry
 from calamity.models import Calamity
-from transport.models import Transport
+from transport.models import Transport, TransportCreated
 from django.core.exceptions import ValidationError
+from django.conf import settings
+from django.db import connection
+
+def createUser(no, extra_energy = 5, energy_capacity =30):
+    user = User.objects.create_user("test2609_%d"%no, "test2609_%d@gmail.com"%no, "password")
+    profile = Profile(user_login_id = "1665%d"%no, user = user, extra_energy = extra_energy, energy_capacity = energy_capacity)
+    profile.save()
+    return profile
+
+def startMeasure():
+    settings.DEBUG = True
+    connection.queries = []
+    return connection.queries
+
+def endMeasure():
+    settings.DEBUG = False
+
+def createProductIndustry(name = "Coconut",maintenance_energy = 4,energy_per_unit = 0.5,
+                          unit = "Pieces",research_level = 1,annual_value_decrease = 5.4,cost_price = 1,
+                          maintenance_cost = 1,initial_cost = 5,carbon_per_unit = 0.003,states = [1,2,3,4]):
+    industry = ProductIndustry(name = name,maintenance_energy = maintenance_energy,cost_price = cost_price,
+                               energy_per_unit = energy_per_unit,unit = unit,research_level = research_level,
+                               annual_value_decrease = annual_value_decrease,maintenance_cost = maintenance_cost,
+                               initial_cost = initial_cost,carbon_per_unit = carbon_per_unit)
+    industry.save()
+    industry.states.add(*states)
+    industry.save()
+    return industry
+
+def createEnergyIndustry(name = "Coal",research_level = 1,output = 5,
+                         annual_value_decrease = 5.4,maintenance_cost = 1,initial_cost = 5,
+                         carbon_per_unit = 0.003,states = [1,2,3,4]):
+    industry = EnergyIndustry(name = name,research_level = research_level,output = output,
+                               annual_value_decrease = annual_value_decrease,maintenance_cost = maintenance_cost,
+                               initial_cost = initial_cost,carbon_per_unit = carbon_per_unit)
+    industry.save()
+    industry.states.add(*states)
+    industry.save()
+    return industry
+    
+def createCalamity(name = "Tornado",severity = 80, probability_number = 0.02, states = [2,3,4,5]):
+    calamity = Calamity(name = name, probability_number = probability_number, severity = severity)
+    calamity.save()
+    calamity.states.add(*states)
+    calamity.save()
+    return calamity
+
+def createState(name = "Telengana",coordx = 6, coordy = 4,population = 34.5,
+                research_level = 1, capacity = 30, energy_plant_capacity = 20, income = 30.4, 
+                growth_rate = 4.5, income_growth_rate = 4.5):
+    state = State(name = name, coordx = coordx, coordy = coordy, population = population,
+                        research_level = research_level, capacity = capacity,growth_rate = growth_rate,
+                        energy_plant_capacity = energy_plant_capacity, income = income,
+                        income_growth_rate = income_growth_rate)
+    state.save()
+    return state
+
+def createTransport(name = "Train",research_level = 1,energy_rate=0.2,
+                    max_stops = 6,stopping_cost = 40,travel_rate = 30,
+                    initial_cost = 5,carbon_cost_rate = 0.003,states = [1,2,3,4]):
+    transport = Transport(name = name, research_level = research_level, energy_rate = energy_rate,
+                          max_stops = max_stops, stopping_cost = stopping_cost, travel_rate = travel_rate,
+                          initial_cost = initial_cost, carbon_cost_rate = carbon_cost_rate)
+    transport.save()
+    transport.states.add(*states)
+    transport.save()
+    return transport
 
 class ModelsTestCase(TestCase):
-
-    def createUser(self,no):
-        user = User.objects.create_user("testuser%d"%no, "testuser%d@gmail.com"%no, "password")
-        profile = Profile(user_login_id = "1665%d"%no, user = user)
-        profile.full_clean()
-        profile.save()
-        return profile
-    
-    def createProductIndustry(self,name = "Coconut",maintenance_energy = 4,energy_per_unit = 0.5,
-                              unit = "Pieces",research_level = 1,annual_value_decrease = 5.4,cost_price = 1,
-                              maintenance_cost = 1,initial_cost = 5,carbon_per_unit = 0.003,states = [1,2,3,4]):
-        industry = ProductIndustry(name = name,maintenance_energy = maintenance_energy,cost_price = cost_price,
-                                   energy_per_unit = energy_per_unit,unit = unit,research_level = research_level,
-                                   annual_value_decrease = annual_value_decrease,maintenance_cost = maintenance_cost,
-                                   initial_cost = initial_cost,carbon_per_unit = carbon_per_unit)
-        industry.save()
-        industry.states.add(*states)
-        return industry
-    
-    def createEnergyIndustry(self,name = "Coal",research_level = 1,output = 5,
-                             annual_value_decrease = 5.4,maintenance_cost = 1,initial_cost = 5,
-                             carbon_per_unit = 0.003,states = [1,2,3,4]):
-        industry = EnergyIndustry(name = name,research_level = research_level,output = output,
-                                   annual_value_decrease = annual_value_decrease,maintenance_cost = maintenance_cost,
-                                   initial_cost = initial_cost,carbon_per_unit = carbon_per_unit)
-        industry.save()
-        industry.states.add(*states)
-        return industry
-        
-    def createCalamity(self, name = "Tornado",severity = 80, probability_number = 0.02, states = [2,3,4,5]):
-        calamity = Calamity(name = name, probability_number = probability_number, severity = severity)
-        calamity.save()
-        calamity.states.add(*states)
-        return calamity
-    
-    def createState(self, name = "Telengana",coordx = 6, coordy = 4,population = 34.5,
-                    research_level = 1, capacity = 30, energy_plant_capacity = 20, income = 30.4, 
-                    growth_rate = 4.5, income_growth_rate = 4.5):
-        state = State(name = name, coordx = coordx, coordy = coordy, population = population,
-                            research_level = research_level, capacity = capacity,growth_rate = growth_rate,
-                            energy_plant_capacity = energy_plant_capacity, income = income,
-                            income_growth_rate = income_growth_rate)
-        state.save()
-        return state
-    
-    def createTransport(self, name = "Train",research_level = 1,energy_rate=0.2,
-                        max_stops = 6,stopping_cost = 40,travel_rate = 30,
-                        initial_cost = 5,carbon_cost_rate = 0.003,states = [1,2,3,4]):
-        transport = Transport(name = name, research_level = research_level, energy_rate = energy_rate,
-                              max_stops = max_stops, stopping_cost = stopping_cost, travel_rate = travel_rate,
-                              initial_cost = initial_cost, carbon_cost_rate = carbon_cost_rate)
-        transport.save()
-        transport.states.add(*states)
-        return transport
     
     def setUp(self):
         #Set up global constants
@@ -82,25 +95,25 @@ class ModelsTestCase(TestCase):
         globalConstants.save()
         
         #Create a default player
-        self.profile = self.createUser(1)
-        s1 = self.state1 = self.createState()
-        s2 = self.state2 = self.createState(name = "Bihar",coordx = 10, coordy = 20)
-        s3 = self.state3 = self.createState(name = "Rajasthan",coordx = 10, coordy = 30)
-        s4 = self.state4 = self.createState(name = "Andhra Pradesh",coordx = 15, coordy = 20)
-        s5 = self.state5 = self.createState(name = "Kashmir",coordx = 10, coordy = 11)
-        s6 = self.state6 = self.createState(name = "Assam",coordx = 25, coordy = 11, research_level=2)
-        self.prodInd1 = self.createProductIndustry(states = [s1,s2,s3,s4,s6])
-        self.prodInd2 = self.createProductIndustry(name = "Rubber",states = [s1,s2,s4,s5,s6])
-        self.prodInd3 = self.createProductIndustry(name = "Coffee",states = [s1,s2,s4,s5,s6], research_level=2)
-        self.energyInd1 = self.createEnergyIndustry(states = [s1,s2,s3,s4,s6])
-        self.energyInd2 = self.createEnergyIndustry(name = "Biofuel",states = [s1,s2,s3,s4,s5,s6])
-        self.energyInd3 = self.createEnergyIndustry(name = "Hydro",states = [s2,s3,s4,s5,s6], research_level=2)
-        self.transport1 = self.createTransport(states = [s1,s3,s4,s5,s6])
-        self.transport2 = self.createTransport(name = "Ship",states = [s1,s2,s3,s4,s5,s6], max_stops = 4)
-        self.transport3 = self.createTransport(name = "Road",states = [s1,s2,s3,s4,s5,s6], research_level=2)
-        self.calamity1 = self.createCalamity(states = [s2,s3,s4,s5,s6])
-        self.calamity2 = self.createCalamity(name = "Hurricane",states = [s1,s2,s3,s5,s6])
-        self.calamity3 = self.createCalamity(name = "Tsunami",states = [s1,s2,s3,s5,s6])
+        self.profile = createUser(1)
+        s1 = self.state1 = createState()
+        s2 = self.state2 = createState(name = "Bihar",coordx = 10, coordy = 20)
+        s3 = self.state3 = createState(name = "Rajasthan",coordx = 10, coordy = 30)
+        s4 = self.state4 = createState(name = "Andhra Pradesh",coordx = 15, coordy = 20)
+        s5 = self.state5 = createState(name = "Kashmir",coordx = 10, coordy = 11)
+        s6 = self.state6 = createState(name = "Assam",coordx = 25, coordy = 11, research_level=2)
+        self.prodInd1 = createProductIndustry(states = [s1,s2,s3,s4,s6])
+        self.prodInd2 = createProductIndustry(name = "Rubber",states = [s1,s2,s4,s5,s6])
+        self.prodInd3 = createProductIndustry(name = "Coffee",states = [s1,s2,s4,s5,s6], research_level=2)
+        self.energyInd1 = createEnergyIndustry(states = [s1,s2,s3,s4,s6])
+        self.energyInd2 = createEnergyIndustry(name = "Biofuel",states = [s1,s2,s3,s4,s5,s6])
+        self.energyInd3 = createEnergyIndustry(name = "Hydro",states = [s2,s3,s4,s5,s6], research_level=2)
+        self.transport1 = createTransport(states = [s1,s3,s4,s5,s6])
+        self.transport2 = createTransport(name = "Ship",states = [s1,s2,s3,s4,s5,s6], max_stops = 4)
+        self.transport3 = createTransport(name = "Road",states = [s1,s2,s3,s4,s5,s6], research_level=2)
+        self.calamity1 = createCalamity(states = [s2,s3,s4,s5,s6])
+        self.calamity2 = createCalamity(name = "Hurricane",states = [s1,s2,s3,s5,s6])
+        self.calamity3 = createCalamity(name = "Tsunami",states = [s1,s2,s3,s5,s6])
     
     def test_player(self):
         self.assertEqual(self.profile.capital, GlobalConstants.objects.get().initial_capital, "Default capital is wrong")
@@ -108,14 +121,14 @@ class ModelsTestCase(TestCase):
         
         #Test if two seperate players can be made with same values
         try:
-            profile2 = self.createUser(2)
-            profile3 = self.createUser(2)
+            profile2 = createUser(2)
+            profile3 = createUser(2)
             self.assert_(False, "Two players were created with same user")
         except IntegrityError:
             pass
     
     def test_loan_scenario(self):
-        profile2 = self.createUser(3)
+        profile2 = createUser(3)
         profile2.buy_factory(self.prodInd1.id,self.state1.id)
         profile2.buy_factory(self.prodInd1.id,self.state2.id)
         try:
@@ -171,8 +184,8 @@ class ModelsTestCase(TestCase):
         print "Loans successfully tested"
     
     def test_energyDeal(self):
-        profile2 = self.createUser(4)
-        profile3 = self.createUser(5)
+        profile2 = createUser(4)
+        profile3 = createUser(5)
         
         try:
             profile2.proposeEnergyOffer(profile3.id, 3, 0.5)
@@ -230,7 +243,7 @@ class ModelsTestCase(TestCase):
         print "Energy Deals successfully tested"
     
     def test_transport(self):
-        profile2 = self.createUser(6)
+        profile2 = createUser(6)
         states = State.objects.exclude(pk = self.state6.id).values_list('id',flat = True)
         states = [int(i) for i in states]
         try:
@@ -304,7 +317,7 @@ class ModelsTestCase(TestCase):
         print "Transports successfully tested"
     
     def test_research_and_industries(self):
-        profile2 = self.createUser(7)
+        profile2 = createUser(7)
         states = State.objects.exclude(id = self.state6.id).values_list('id',flat = True)
         states = [int(i) for i in states]
         try:
@@ -452,3 +465,46 @@ class ModelsTestCase(TestCase):
         self.assertEqual(float(profile2.netWorth), 94.0, "Net worth should've been 100 Million")
         
         print "Factories and powerplants successfully tested"
+    
+    def test_cron(self):
+        profile2 = createUser(8)
+        profile2.research_level = 2
+        profile2.save()
+        
+        startMeasure()
+        
+        states = State.objects.exclude(id__in = [self.state1.id,self.state2.id]).values_list('id',flat = True)
+        states = [int(i) for i in states]
+        
+        a = len(connection.queries)
+        
+        states2 = list(states)
+        states2.remove(int(self.state5.id))
+        
+        profile2.buy_transport(self.transport2.id,states)
+        profile2.buy_transport(self.transport3.id,states2)
+        profile2.buy_factory(self.prodInd3.id, self.state5.id)
+        profile2.buy_factory(self.prodInd2.id, self.state6.id)
+        profile2.buy_powerPlant(self.energyInd2.id, self.state6.id)
+        profile2.buy_powerPlant(self.energyInd3.id, self.state5.id)
+        
+        b = len(connection.queries)
+        
+        transport = profile2.transportcreated_set.get(transport = self.transport2)
+        factory = profile2.factory_set.get(state = self.state5)
+        profile2.setTransport(factory.id,transport.id)
+        
+        c = len(connection.queries)
+        
+        factories = Factory.objects.filter(transport__states__in = [self.state3])
+        print factories.exclude(state = self.state3)
+        print factories.exclude(state = self.state4)
+        
+        d = len(connection.queries)
+        
+        endMeasure()
+        
+        print a
+        print b-a
+        print c-b
+        print d-c
