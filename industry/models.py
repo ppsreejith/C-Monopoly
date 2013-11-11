@@ -13,7 +13,7 @@ class AbstractIndustry(models.Model):
     states = models.ManyToManyField(State)
     carbon_per_unit = models.DecimalField(max_digits = 15, decimal_places = 5)
     initial_cost = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Millions")
-    maintenance_cost = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Millions")
+    maintenance_cost = models.DecimalField(max_digits = 10, decimal_places = 2, help_text = "In Millions. Monthly for factories. Daily for power plants.")
     research_level = models.PositiveIntegerField(help_text="Typically a small integer.")
     annual_value_decrease = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Rate of value loss, yearly.")
     class Meta:
@@ -67,17 +67,16 @@ class Factory(models.Model):
         check_commodity(self.type, self.player)
         check_player_research_level(self)
         check_no_factories(self.player)
+        check_selling_price(self.type.cost_price, self.selling_price)
     
     def annualUpdate(self):#yearly
         self.actual_value = F('actual_value') * (100 - self.type.annual_value_decrease)/100
         self.save()
     
     def setSellingPrice(self, new_sp):
-        if new_sp < self.cost_price:
-            raise ValidationError("Selling price cannot be lower than cost price.")
-        else:
-            self.selling_price = new_sp
-            self.save()
+        check_selling_price(self.type.cost_price, new_sp)
+        self.selling_price = new_sp
+        self.save()
     
     def setTransport(self, transportcreated):
         if transportcreated == None:
@@ -155,3 +154,7 @@ def check_no_factories(player):
     max_fact = int(GlobalConstants.objects.values_list('max_factories',flat = True)[0])
     if player.factory_set.count() >= max_fact:
         raise ValidationError("You can't own more than %d factories!"%max_fact)
+
+def check_selling_price(cost_price,selling_price):
+    if selling_price<cost_price:
+        raise ValidationError("Selling price cannot be lower than cost price.")

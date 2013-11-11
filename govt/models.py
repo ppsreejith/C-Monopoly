@@ -11,8 +11,8 @@ class State(models.Model):
     coordy = models.IntegerField(help_text="Y Co-ordinate (Integer)")
     population = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "In millions")
     research_level = models.PositiveIntegerField(help_text = "Typically a small Integer")
-    capacity = models.PositiveIntegerField(help_text = "Typically a small Integer")
-    energy_plant_capacity = models.PositiveIntegerField(help_text = "Typically a small Integer")
+    capacity = models.PositiveIntegerField(help_text = "Typically a small Integer")#unused fields
+    energy_plant_capacity = models.PositiveIntegerField(help_text = "Typically a small Integer")#unused fields
     income = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "In thousands")
     growth_rate = models.DecimalField(max_digits = 9, decimal_places = 4, help_text = "Yearly Population Growth Percentage")
     income_growth_rate = models.DecimalField(max_digits = 9, decimal_places = 4, help_text = "Yearly Income Growth Percentage")

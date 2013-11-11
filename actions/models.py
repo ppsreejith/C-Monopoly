@@ -67,7 +67,7 @@ class Profile(Player):
         factory = Factory(type = currentIndustry, 
                           state = currentState, 
                           player = self,
-                          selling_price = Decimal(1.2)*currentIndustry.cost_price,
+                          selling_price = currentIndustry.cost_price*Decimal(1.1),
                           actual_value = currentIndustry.initial_cost*Decimal(0.9))
         factory.full_clean()
         factory.save()
@@ -75,6 +75,10 @@ class Profile(Player):
         self.netWorth = F('netWorth') - currentIndustry.initial_cost*Decimal(0.1)
         self.save()
         LogBook.objects.create(player = self, message = "Bought Factory for Rs. %.2f Million."%float(currentIndustry.initial_cost))
+    
+    def setSellingPrice(self, factory, new_sp):
+        currentFactory = self.factory_set.get(pk = factory)
+        currentFactory.setSellingPrice(new_sp)
     
     def sell_factory(self, factory):
         currentFactory = self.factory_set.get(pk = factory)

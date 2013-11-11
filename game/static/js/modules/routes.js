@@ -1,4 +1,4 @@
-require(['jquery','backbone'],function($,Backbone){
+define(['jquery','backbone'],function($,Backbone){
 	var Urls = Backbone.Router.extend({
 
         routes: {
@@ -36,5 +36,5 @@ require(['jquery','backbone'],function($,Backbone){
 	var urlRouter = new Urls();
 	Backbone.history.start();
 	
-	//return urlRouter;
+	return urlRouter;
 });

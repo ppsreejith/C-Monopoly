@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 #Only one should be instantiated
 class GlobalConstants(models.Model):
     carbon_buying_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price of carbon. (In thousands)" ) #price of carbon credits.
-    energy_buying_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which energy sold to govt") #price at which energy sold to govt.
+    energy_buying_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which govt buys energy") #price at which energy sold to govt.
     energy_selling_price = models.DecimalField(max_digits = 9, decimal_places = 2, help_text = "price at which govt sells energy") #price at which govt sells energy
     tax_rate = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Percentage of revenue as tax.") #revenue tax
     loan_interest_rate = models.DecimalField(max_digits = 5, decimal_places = 2, help_text="Percentage of loan as interest") #Loan Interest Rate

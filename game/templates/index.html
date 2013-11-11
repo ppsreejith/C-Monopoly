@@ -5,7 +5,85 @@
 		<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300" rel="stylesheet" type="text/css">
 		<link href="{% static "css/global.css" %}" rel="stylesheet" type="text/css">
 		<title>C-Monopoly</title>
-		<script type="text/javascript">static_prefix = "{% get_static_prefix %}";</script>
+		<script type="text/javascript">
+			window.settings = {
+					static_prefix : "{% get_static_prefix %}",
+					user : {
+						username : "{{user.username}}",
+						capital : 0,
+						netWorth : 0,
+					},
+					states:{{states|safe}},
+					productIndustries:{{productIndustries|safe}},
+					energyIndustries:{{energyIndustries|safe}},
+					
+				};
+		</script>
+		<script type="text/html" id="productInfoTemplate">
+			<div class='detailBox'>
+				<h1><%= name %></h1>
+				<br/>
+				<table>
+					<tr><td>Price</td><td>&#8377; <%= initial_cost %> Million</td></tr>
+					<tr><td>Maintenance Cost</td><td>&#8377; <%= maintenance_cost %> Million</td></tr>
+					<tr><td>Maintenance Energy</td><td><%= maintenance_energy %> Units</td></tr>
+					<tr><td>Unit</td><td><%= unit %></td></tr>
+					<tr><td>Cost per <%= unit %></td><td>&#8377; <%= cost_price %> Thousand </td></tr>
+					<tr><td>CO2 per <%= unit %></td><td><%= carbon_per_unit %> Tonnes </td></tr>
+					<tr><td>Energy per <%= unit %></td><td><%= energy_per_unit %> Units </td></tr>
+					<% var tempStates = App.States.getStates(states) %>
+					<tr><td>&nbsp;</td></tr>
+					<tr><td>Available in</td><td><%= _.map(tempStates,function(state){return state.attributes.name;}).join(", <br/>") %> </td></tr>
+				</table>
+				<br/>
+				<% if (currentstate != 0){ %>
+				<div class="buy" >Buy</div>
+				<% } %>
+			</div>
+		</script>
+		<script type="text/html" id="energyInfoTemplate">
+			<div class='detailBox'>
+				<h1><%= name %></h1>
+				<br/>
+				<table>
+					<tr><td>Price</td><td>&#8377; <%= initial_cost %> Million</td></tr>
+					<tr><td>Maintenance Cost</td><td>&#8377; <%= maintenance_cost %> Million</td></tr>
+					<tr><td>CO2 per unit</td><td><%= carbon_per_unit %> Tonnes </td></tr>
+					<tr><td>Energy Output</td><td><%= output %> Units </td></tr>
+					<% var tempStates = App.States.getStates(states) %>
+					<tr><td>&nbsp;</td></tr>
+					<tr><td>Available in</td><td><%= _.map(tempStates,function(state){return state.attributes.name;}).join(", <br/>") %> </td></tr>
+				</table>
+				<br/>
+				<% if (currentstate != 0){ %>
+				<div class="buy" name="<%= currentstate %>">Buy</div>
+				<% } %>
+			</div>
+		</script>
+		<script type="text/html" id="stateTemplate">
+			<h1><%= state.name %></h1>
+			<table>
+				<tr><td>Population</td><td><%= state.population %></td></tr>
+				<tr><td>Growth rate</td><td><%= state.growth_rate %></td></tr>
+				<tr><td>Income</td><td><%= state.income %></td></tr>
+				<tr><td>Income Growth Rate</td><td><%= state.income_growth_rate %></td></tr>
+			</table>
+			<hr />
+			<br/>
+			<h1>Industries</h1>
+			<ul class="ProductIndustriesList">
+				<% _.each(products, function(product){ %> 
+					<li data-id=<%= product.id %> ><%= product.name %></li> 
+				<% }); %>
+			</ul>
+			<br/>
+			<h1>Power Plants</h1>
+			<ul class="EnergyIndustriesList">
+				<% _.each(energies, function(energy){ %> 
+					<li data-id=<%= energy.id %> ><%= energy.name %></li> 
+				<% }); %>
+			</ul>
+		</script>
 		<script type="text/javascript" src="{% static "js/require.js" %}" data-main="{% static "js/main.js" %}" ></script>
 	</head>
 	<body>
@@ -20,19 +98,28 @@
 					<a href="#rules">Rules</a>
 				</nav>
 			</div>
-			<div class="menuBar">
-				<nav class="gameNavigation">
-					<a href="#game/industries">Industries</a>
-					<a href="#game/transports">Transport</a>
-					<a href="#game/govt">Government</a>
-					<a href="#game/office">Office</a>
-					<a href="#game/leaderboard">Leaderboard</a>
-				</nav>
-			</div>
 			<div class="mainBar">
 				<div class="gameScreen mainScreen active">
+					<div class="menuBar">
+						<nav class="gameNavigation">
+							<a href="#game/industries">Industries</a>
+							<a href="#game/transports">Transport</a>
+							<a href="#game/govt">Government</a>
+							<a href="#game/office">Office</a>
+							<a href="#game/leaderboard">Leaderboard</a>
+						</nav>
+					</div>
 					<div class="industriesInfo screenInfo active">
-						<div class="leftInfo"></div>
+						<div class="leftInfo">
+							<div class="detailBox stateInfo">
+								
+							</div>
+						</div>
+						<div class="middleInfo detailScreen">
+							<div class="exit" title="close" onclick="$(this.parentElement).hide();">&#8855;</div>
+							<div class="detailScreenInfo">
+							</div>
+						</div>
 						<div class="middleInfo indiaMap">
 							
 						</div>
@@ -40,7 +127,9 @@
 					</div>
 					<div class="transportsInfo screenInfo">
 						<div class="leftInfo"></div>
-						<div class="middleInfo"></div>
+						<div class="middleInfo transportsMap">
+							
+						</div>
 						<div class="rightInfo"></div>
 					</div>
 					<div class="govtInfo screenInfo">

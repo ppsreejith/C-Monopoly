@@ -11,6 +11,8 @@ from energy.models import PowerPlant
 from calamity.models import CalamityOccurence, Calamity
 from transport.models import TransportCreated
 import random
+from django.db.models.aggregates import Sum
+from collections import defaultdict
 
 class Command(BaseCommand):
     
@@ -25,6 +27,10 @@ class Command(BaseCommand):
         glo = GlobalConstants.objects.get()
         states = State.objects.all()
         messages = [] #Messages to be logged
+        playerAmounts = defaultdict(lambda:0)
+        playerWorths = defaultdict(lambda:0)
+        playerCarbons = defaultdict(lambda:0)
+        playerEnergies = defaultdict(lambda:0)
         for state in states:
             
             severity = 0
@@ -59,27 +65,25 @@ class Command(BaseCommand):
                 amount = Decimal(1-severity)*constantSums[factory.type_id]/(brand_cost*factory.selling_price*Decimal(1000))
                 no_of_products = Decimal(amount/(factory.selling_price*Decimal(1000)))
                 carbon = no_of_products*factory.type.carbon_per_unit
-                energy = no_of_products*factory.type.energy_per_unit + factory.type.maintenance_energy
+                energy = no_of_products*factory.type.energy_per_unit
                 amount = amount*tax_remaining
-                production_costs = no_of_products*factory.type.cost_price*Decimal(1000) + factory.type.maintenance_cost
-                factory.player.capital = F('capital') + amount - production_costs
-                factory.player.netWorth = F('netWorth') + amount - production_costs - energy*glo.energy_buying_price
-                factory.player.extra_energy = F('extra_energy') - energy
-                factory.player.monthly_carbon_total = F('monthly_carbon_total') + carbon
-                factory.player.save()
+                production_costs = no_of_products*factory.type.cost_price*Decimal(1000)
+                playerAmounts[factory.player.id] += amount - production_costs
+                playerWorths[factory.player.id] += amount - production_costs - energy*glo.energy_buying_price
+                playerEnergies[factory.player.id] -= energy
+                playerCarbons[factory.player.id] += carbon
                 factory.products_last_day = no_of_products
                 factory.save()
                 messages.append(LogBook(player=factory.player,message='Earned a revenue of %.2f minus tax for %s'%(amount,factory.type.name)))
-                messages.append(LogBook(player=factory.player,message='Paid maintenance and production costs of %.2f for %s'%(production_costs,factory.type.name)))            
+                messages.append(LogBook(player=factory.player,message='Paid production costs of %.2f for %s'%(production_costs,factory.type.name)))            
 
             
             powerplants = PowerPlant.objects.select_related('player','type').exclude(player__suspended = True).exclude(shut_down = True).filter(state = state)
             for powerplant in powerplants:
-                powerplant.person.capital = F('capital') - powerplant.type.maintenance_cost
-                powerplant.person.monthly_carbon_total = F('monthly_carbon_total') + powerplant.carbon_per_unit*powerplant.type.output
-                powerplant.person.extra_energy = F('extra_energy') + (1-severity)*Decimal(powerplant.type.output)
-                powerplant.person.netWorth = F('netWorth') + glo.energy_buying_price*powerplant.type.output - powerplant.type.maintenance_cost
-                powerplant.person.save()
+                playerAmounts[powerplant.player.id] -= powerplant.type.maintenance_cost
+                playerCarbons[powerplant.player.id] += powerplant.carbon_per_unit*powerplant.type.output
+                playerEnergies[powerplant.player.id] += (1-severity)*Decimal(powerplant.type.output)
+                playerWorths[powerplant.player.id] += glo.energy_buying_price*powerplant.type.output - powerplant.type.maintenance_cost
                 messages.append(LogBook(player=powerplant.player,message='Generated energy units amounting to %.2f for %s'%(powerplant.carbon_per_unit*powerplant.type.output,powerplant.type.name)))
                 messages.append(LogBook(player=powerplant.player,message='Paid maintenance and production costs of %.2f for %s'%(production_costs,powerplant.type.name)))
         
@@ -87,12 +91,20 @@ class Command(BaseCommand):
         for transport in transports:
             costs = Decimal(transport.states.count())*transport.transport.stopping_cost + transport.transport.travel_rate*transport.distance
             energy = transport.transport.travel_rate*transport.distance
-            carbon = transport.transport.travel_rate*transport.distance
-            transport.person.capital = F('capital') - costs
-            transport.person.extra_energy = F('extra_energy') - energy
-            transport.person.monthly_carbon_total = F('monthly_carbon_total') - carbon  
-            transport.person.save()
-            messages.append(LogBook(player=transport.player,message='Paid maintenance and production costs of %.2f for %s'%(costs,transport.transport.name)))
+            carbon = transport.transport.carbon_cost_rate*transport.distance
+            playerAmounts[transport.player.id] -= costs
+            playerWorths[transport.player.id] -= costs
+            playerEnergies[transport.player.id] -= energy
+            playerCarbons[transport.player.id] += carbon
+            messages.append(LogBook(player=transport.player,message='Paid Travelling costs of %.2f for %s'%(costs,transport.transport.name)))
+        
+        oldPlayers = Player.objects.filter(suspended = False).filter(id__in = playerAmounts.keys())
+        for player in oldPlayers:
+            player.capital = F('capital') + playerAmounts[player.id]
+            player.netWorth = F('netWorh') + playerWorths[player.id]
+            player.monthly_carbon_total = F('carbon') + playerCarbons[player.id]
+            player.extra_energy = F('extra_energy') + playerEnergies[player.id]
+            player.save()
         
         players = Player.objects.all()
         for player in players:
@@ -105,12 +117,12 @@ class Command(BaseCommand):
                 messages.append(LogBook(player=player,message='You have been suspended since your capital has gone below 30 million.'))
             if player.extra_energy < 0:
                 energy = player.extra_energy
-                player.capital = F('capital') + energy * glo.energy_selling_price #Player extra energy is negative
+                player.capital = F('capital') - energy * glo.energy_selling_price #Player extra energy is negative
                 player.extra_energy = 0
                 messages.append(LogBook(player=player,message='You had to buy energy from the government as your energy had expired.'))
             elif player.extra_energy > player.energy_capacity:
                 energy = player.extra_energy - player.energy_capacity
-                player.capital = F('capital') + energy * glo.energy_buying_price #Player extra energy is negative
+                player.capital = F('capital') + energy * glo.energy_buying_price #Player extra energy is more than capacity
                 player.extra_energy = F('energy_capacity')
                 messages.append(LogBook(player=player,message='Extra energy was sold off to the government.'))
             player.save()
@@ -118,16 +130,18 @@ class Command(BaseCommand):
         LogBook.objects.bulk_create(messages)
         
         if glo.current_day == 1:
-            self.monthly()
+            self.monthly(glo)
         if glo.current_month == 1:
-            self.yearly()
+            self.yearly(glo)
         
         glo.nextDay()
     
-    def monthly(self):
+    def monthly(self,glo):
         Loans = LoansCreated.objects.exclude(player__suspended = True)
         for Loan in Loans:
             Loan.monthlyUpdate()
+        
+        messages= []
         
         #Calamities
         counter = random.randint(1,100)
@@ -142,7 +156,29 @@ class Command(BaseCommand):
         players = Player.objects.all().exclude(player__suspended = True).order_by('-netWorth','-capital')
         carbons = []
         for player in players:
+            capital = 0
+            netWorth = 0
             carbons.append(player.monthly_carbon_total)
+            sums = player.factory_set.aggregate(total = Sum('type__maintenance_cost'))
+            energy = player.factory_set.aggregate(total = Sum('type__maintenance_energy'))
+            if sums['total'] < player.capital - Decimal(30):
+                capital -= sums['total']
+                netWorth -= sums['total']
+                messages.append(LogBook(player=player,message='Paid monthly maintenance cost of %.2f.'%(sums['total'])))
+                messages.append(LogBook(player=player,message='Paid monthly maintenance energy of %.2f.'%(energy['total'])))
+            else:
+                player.suspended = True
+                messages.append(LogBook(player=player,message='Since your capital went below 30 million, you have been suspended'))
+            if energy['total'] > player.extra_energy:
+                extra = energy['total'] - player.extra_energy
+                player.extra_energy = 0
+                capital -= extra*glo.energy_selling_price
+                netWorth -= energy['total']*glo.energy_selling_price
+                messages.append(LogBook(player=player,message='Energy deficit for maintenance energy was bought from government'))
+            else:
+                player.extra_energy = F('extra_energy') - energy['total']
+            player.capital = F('capital') + capital
+            player.netWorth = F('netWorth') + netWorth
         
         #Mapping carbons array to brand array
         maximum = max(carbons)
@@ -157,7 +193,7 @@ class Command(BaseCommand):
             player.rank = index+1
             player.save()
     
-    def yearly(self):
+    def yearly(self,glo):
         states = State.objects.all()
         for state in states:
             state.annualUpdate()
