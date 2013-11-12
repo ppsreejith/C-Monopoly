@@ -14,17 +14,21 @@ define(['lodash','backbone'],function(_,Backbone){
 		},
 		findProductIndustries:function(){
 			var id = this.id;
-			products = App.ProductIndustries.filter(function(model){
+			if (this.products != null) //Lazy loading
+				return this.products;
+			this.products = App.ProductIndustries.filter(function(model){
 				return (model.get('states').indexOf(id) > -1);
 			});
-			return products;
+			return this.products;
 		},
 		findEnergyIndustries:function(){
 			var id = this.id;
-			energies = App.EnergyIndustries.filter(function(model){
+			if (this.energies != null) //Lazy loading
+				return this.energies;
+			this.energies = App.EnergyIndustries.filter(function(model){
 				return (model.get('states').indexOf(id) > -1);
 			});
-			return energies;
+			return this.energies;
 		},
 	});
 	

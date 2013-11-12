@@ -1,7 +1,10 @@
 from django.conf.urls import patterns, url
-from actions.views import SimpleTest
+from actions.views import User, Factories, Powerplants, Transports
 
 
 urlpatterns = patterns('',
-     url(r'^test$',SimpleTest.as_view())
+     url(r'^user$',User.as_view()),
+     url(r'^factories$',Factories.as_view()),
+     url(r'^powerplants',Powerplants.as_view()),
+     url(r'^transports',Transports.as_view()),
 )

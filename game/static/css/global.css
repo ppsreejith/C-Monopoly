@@ -17,6 +17,7 @@ div{
 	margin:0;
 	padding:0;
 	font-family: 'Source Sans Pro', sans-serif;
+	font-weight:bold;
 	overflow:hidden;
 }
 a{
@@ -78,6 +79,40 @@ div.mainBar{
 img.logo{
 	height:100%;
 }
+div.notifBar > span.username{
+	position:absolute;
+	right:0;
+	font-size:12px;
+	font-weight:bold;
+	top:0;
+	color:white;
+}
+div.userInfo{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:35%;
+	color:white;
+}
+div.otherUserInfo{
+	position:absolute;
+	top:35%;
+	left:0;
+	width:100%;
+	height:65%;
+	color:white;
+}
+span.setPriceButton{
+	position:relative;
+	cursor:pointer;
+	top:-1px;
+	display:none;
+}
+div.notifBar > span.username > span{
+color:black;
+font-weight:bold;
+}
 nav.navigation{
 	position:absolute;
 	right:0;
@@ -85,10 +120,14 @@ nav.navigation{
 	width:40%;
 	text-align:right;
 }
+tr > td:nth-child(2){
+	text-align:right;
+}
 div.buy{
-	width:20%;
+	width:30%;
+	padding:10px;
 	position:relative;
-	left:40%;
+	left:35%;
 	font-size:27px;
 	text-align:center;
 	border-radius:3px;
@@ -101,6 +140,11 @@ div.buy{
 	background:linear-gradient(top,#f5f5f5,#d1d1d1);
 	color:black;
 	box-shadow:inset 0 0 0 1px rgba(255,255,255,0.5);
+}
+div.buy:active{
+	background:-webkit-linear-gradient(top,#d1d1d1,#f5f5f5);
+	background:-moz-linear-gradient(top,#d1d1d1,#f5f5f5);
+	background:linear-gradient(top,#d1d1d1,#f5f5f5);
 }
 nav.navigation a{
 	font-weight:bold;
@@ -172,6 +216,13 @@ div.detailScreenInfo{
 	top:5%;
 	position:absolute;
 }
+div.detailScreenInfo input{
+	background: transparent;
+	border: 0;
+	color: white;
+	outline: 0;
+	width:30%;
+}
 div.exit{
 	position:absolute;
 	color:red;
@@ -188,6 +239,18 @@ div.detailBox{
 	height:100%;
 	overflow-y:scroll;
 	padding:10px;
+}
+div.transportDetail{
+	width:100%;
+	height:50%;
+	position:absolute;
+	top:0;
+}
+div.transportList{
+	width:100%;
+	height:50%;
+	position:absolute;
+	top:50%;
 }
 div.detailBox table{
 	color:white;
@@ -230,7 +293,7 @@ path.nostate{
 path.availableState{
 	fill:lightgreen;
 }
-path.availableState.takenState{
+path.takenState{
 	fill:green !important;
 }
 /* Scrollbar Stuff*/
@@ -272,3 +335,32 @@ scrollbar[orient="vertical"] {
 }
 }
 /* Scrollbar stuff ends here */
+/* css input number input */
+input[type=number]::-webkit-inner-spin-button { 
+    -webkit-appearance: none;
+    cursor:pointer;
+    display:block;
+    width:8px;
+    color: white;
+    text-align:center;
+    position:relative;
+}
+
+input[type=number]::-webkit-inner-spin-button:before,
+input[type=number]::-webkit-inner-spin-button:after {
+    content: "^";
+    position:absolute;
+    right: 0;
+    font-family:monospace;
+    line-height:
+}
+
+input[type=number]::-webkit-inner-spin-button:before {
+    top:0px;
+}
+
+input[type=number]::-webkit-inner-spin-button:after {
+    bottom:0px;
+    -webkit-transform: rotate(180deg);
+}
+/* css input number input ends here */

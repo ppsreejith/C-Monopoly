@@ -18,6 +18,7 @@ class Player(models.Model):
     selling_energy = models.BooleanField(default = False)
     user_login_id = models.CharField(max_length = 100, unique = True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    rank = models.PositiveIntegerField(unique=True, default = lambda: Player.objects.count())
     join_date = models.DateTimeField(auto_now_add = True)
     def __unicode__(self):
         return self.user.username

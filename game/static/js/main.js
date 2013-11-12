@@ -20,8 +20,11 @@ requirejs.config({
 });
 
 // Event Loaders, Dom Interaction
-require(['jquery','domReady','backbone','models/state','models/industry',],function($,domReady,Backbone,States,Industries){
-
+require(['jquery','domReady','backbone','models/state','models/industry','models/transport','text!templates.html'],
+		function($,domReady,Backbone,States,Industries,Transports,templates){
+	
+	$(document.body).append(templates);
+	
 	// A global event. Can be referenced anywhere in the code.
 	// Use like: globalEvent.trigger("some:event",{key:value});
 	// and also: globalEvent.on("some:event",function(data){});
@@ -33,19 +36,24 @@ require(['jquery','domReady','backbone','models/state','models/industry',],funct
 	App.States = new States(settings.states);
 	App.ProductIndustries = new Industries.ProductIndustries(settings.productIndustries);
 	App.EnergyIndustries = new Industries.EnergyIndustries(settings.energyIndustries);
+	App.Transports = new Transports.Transports(settings.transports);
 	
 	//Page load
     domReady(function(){
     	
-    	// Url routing and SVG Loading. triggers change:state or change:transportState when state is changed.
-    	require(['modules/routes','modules/svgLoader'],function(router, highlight){
+    	// Url routing, Actions and SVG Loading. triggers change:state or change:transportState when state is changed.
+    	require(['modules/routes','modules/svgLoader','modules/actions'],function(router, highlight){
     		App.router = router;
     		App.highlight = highlight;
     	});
     	
     	// Main stuff
-    	require(['views/state'],function(stateView){
+    	require(['views/state','views/user','views/plant','views/transport'],function(stateView,userView,PlantView,Transports){
     		var state = new stateView();
+    		var user = new userView();
+    		var plant = new PlantView();
+    		var transport = new Transports.TransportView();
+    		var myTransport = new Transports.MyTransportView();
     	});
     	
     	// Other boring event listeners and triggers

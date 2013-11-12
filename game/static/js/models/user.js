@@ -3,7 +3,7 @@ define(['backbone'], function(Backbone){
 	var Player = Backbone.Model.extend({
 	    defaults: {
 		"rank":0,
-		"username":"",
+		"username":settings.user.username,
 		"capital":0,
 		"netWorth":0,
 	    },

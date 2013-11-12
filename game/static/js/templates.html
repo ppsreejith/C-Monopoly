@@ -1,0 +1,182 @@
+<script type="text/html" id="userTemplate">
+  <div class='detailBox'>
+    <h1><%= username %></h1>
+    <table>
+      <tr><td>Capital</td><td>&#8377; <%= capital %> Million</td></tr>
+      <tr><td>Net Worth</td><td>&#8377; <%= netWorth %> Million</td></tr>
+      <tr><td>Energy</td><td><%= extra_energy %> Units</td></tr>
+      <tr><td>Energy Cap.</td><td><%= energy_capacity %> Units</td></tr>
+      <tr><td>Rank</td><td><%= rank %></td></tr>
+    </table>
+  </div>
+</script>
+<script type="text/html" id="productInfoTemplate">
+  <div class='detailBox'>
+    <h1><%= name %></h1>
+    <br/>
+    <table>
+      <tr><td>Price</td><td>&#8377; <%= initial_cost %> Million</td></tr>
+      <tr><td>Maintenance Cost</td><td>&#8377; <%= maintenance_cost %> Million</td></tr>
+      <tr><td>Maintenance Energy</td><td><%= maintenance_energy %> Units</td></tr>
+      <tr><td>Unit</td><td><%= unit %></td></tr>
+      <tr><td>Cost per unit</td><td>&#8377; <%= cost_price %> Thousand </td></tr>
+      <tr><td>CO2 per unit</td><td><%= carbon_per_unit %>  </td></tr>
+      <tr><td>Energy per unit</td><td><%= energy_per_unit %> Units </td></tr>
+      <% var tempStates = App.States.getStates(states) %>
+      <tr><td>&nbsp;</td></tr>
+      <tr><td>Available in</td><td><%= _.map(tempStates,function(state){return state.attributes.name;}).join(", <br/>") %> </td></tr>
+    </table>
+    <br/>
+    <% if (currentstate != 0){ %>
+    <div class="buy" >Buy</div>
+    <% } %>
+  </div>
+</script>
+<script type="text/html" id="energyInfoTemplate">
+  <div class='detailBox'>
+    <h1><%= name %></h1>
+    <br/>
+    <table>
+      <tr><td>Price</td><td>&#8377; <%= initial_cost %> Million</td></tr>
+      <tr><td>Maintenance Cost</td><td>&#8377; <%= maintenance_cost %> Million</td></tr>
+      <tr><td>CO2 per unit</td><td><%= carbon_per_unit %> Kilos </td></tr>
+      <tr><td>Energy Output</td><td><%= output %> Units </td></tr>
+      <% var tempStates = App.States.getStates(states) %>
+      <tr><td>&nbsp;</td></tr>
+      <tr><td>Available in</td><td><%= _.map(tempStates,function(state){return state.attributes.name;}).join(", <br/>") %> </td></tr>
+    </table>
+    <br/>
+    <% if (currentstate != 0){ %>
+    <div class="buy" name="<%= currentstate %>">Buy</div>
+    <% } %>
+  </div>
+</script>
+<script type="text/html" id="plantTemplate">
+  <div class='detailBox'>
+    <h1>My Factories</h1>
+    <ul class="ProductIndustriesList">
+      <% _.each(products, function(product){ %> 
+      <li data-id=<%= product.id %> ><%= product.type.name %></li> 
+      <% }); %>
+    </ul>
+    <br/>
+    <h1>My Power Plants</h1>
+    <ul class="EnergyIndustriesList">
+      <% _.each(energies, function(energy){ %> 
+      <li data-id=<%= energy.id %> ><%= energy.type.name %></li> 
+      <% }); %>
+    </ul>
+  </div>
+</script>
+<script type="text/html" id="stateTemplate">
+  <h1><%= state.name %></h1>
+  <table>
+    <tr><td>Population</td><td><%= state.population %></td></tr>
+    <tr><td>Growth rate</td><td><%= state.growth_rate %></td></tr>
+    <tr><td>Income</td><td><%= state.income %></td></tr>
+    <tr><td>Income Growth Rate</td><td><%= state.income_growth_rate %></td></tr>
+  </table>
+  <hr />
+  <br/>
+  <h1>Industries</h1>
+  <ul class="ProductIndustriesList">
+    <% _.each(products, function(product){ %> 
+    <li data-id=<%= product.id %> ><%= product.name %></li> 
+    <% }); %>
+  </ul>
+  <br/>
+  <h1>Power Plants</h1>
+  <ul class="EnergyIndustriesList">
+    <% _.each(energies, function(energy){ %> 
+    <li data-id=<%= energy.id %> ><%= energy.name %></li> 
+    <% }); %>
+  </ul>
+</script>
+<script type="text/html" id="myFactoriesDetails">
+  <div class='detailBox'>
+    <h1><%= type.name %></h1>
+    <br/>
+    <table>
+	  <tr><td>Status</td><td><font color=<%= statuscolor %> ><%= status %></font></td></tr>
+	  <tr><td>State</td><td><%= state.name %></td></tr>
+      <tr><td>Value</td><td>&#8377; <%= actual_value %> Million</td></tr>
+      <tr><td>Maintenance Cost</td><td>&#8377; <%= type.maintenance_cost %> Million</td></tr>
+	  <tr><td>Maintenance Energy</td><td><%= type.maintenance_energy %> Units</td></tr>
+      <tr><td>CO2 per unit</td><td><%= type.carbon_per_unit %> Kilos </td></tr>
+	  <tr><td>Yesterday sales</td><td><%= products_last_day %> <%= type.unit %></td></tr>
+	  <tr><td>Cost Price</td><td>&#8377; <%= type.cost_price %> Thousand</td></tr>
+	  <tr><td>Energy per unit</td><td><%= type.energy_per_unit %> Units</td></tr>
+	  <tr><td>Unit</td><td><%= type.unit %></td></tr>
+	  <tr><td>Selling Price</td><td>&#8377; <input type='number' class='selling_value' data-id='<%= id %>' value=<%= selling_price %> step=0.001 /> Thousand &nbsp; <span title='Change Price' class='setPriceButton'>&#9654;</span></td></tr>
+    </table>
+	<br/>
+	<div class="buy sell" style="left:10%;">Sell</div><div class="buy halt" style="left:30%;"><%= halt %></div>
+    <br/>
+  </div>
+</script>
+<script type="text/html" id="myPowerplantsDetails">
+  <div class='detailBox'>
+    <h1><%= type.name %></h1>
+    <br/>
+    <table>
+	  <tr><td>Status</td><td><font color=<%= statuscolor %> ><%= status %></font></td></tr>
+      <tr><td>Value</td><td>&#8377; <%= actual_value %> Million</td></tr>
+      <tr><td>Maintenance Cost</td><td>&#8377; <%= type.maintenance_cost %> Million</td></tr>
+      <tr><td>CO2 per unit</td><td><%= type.carbon_per_unit %> Kilos </td></tr>
+      <tr><td>Energy Output</td><td><%= type.output %> Units </td></tr>
+    </table>
+	<br/>
+	<div class="buy sell" style="left:10%;">Sell</div><div class="buy halt" style="left:30%;"><%= halt %></div>
+    <br/>
+  </div>
+</script>
+<script type="text/html" id="transportListTemplate">
+	<div class='detailBox'>
+		<h1> All Transports </h1>
+		<ul class='Transports'>
+		<% _.each(transports, function(transport){ %>
+			<li data-id=<%= transport.id %> ><%= transport.name %></li>
+		<% }) %>
+		</ul>
+	</div>
+</script>
+<script type="text/html" id="transportInfo">
+	<div class='detailBox'>
+		<h1> <%= name %> </h1>
+		<table>
+			<tr><td>Price</td><td>&#8377; <%= initial_cost %> Million</td></tr>
+			<tr><td>Travel Rate</td><td>&#8377; <%= travel_rate %> Million</td></tr>
+			<tr><td>Cost per stop</td><td>&#8377; <%= stopping_cost %> Million</td></tr>
+			<tr><td>Max Stops</td><td><%= max_stops %></td></tr>
+			<tr><td>Energy Rate</td><td><%= energy_rate %> Units</td></tr>
+			<tr><td>CO2 Rate</td><td><%= carbon_cost_rate %> Kilos</td></tr>
+		</table>
+	<br/>
+	<div class='buy'>Buy</div>
+	</div>
+</script>
+<script type="text/html" id="myTransportsList">
+	<div class='detailBox'>
+		<h1> My Transports </h1>
+		<ul class='Transports'>
+		<% _.each(transports, function(transport){ %>
+			<li data-id=<%= transport.id %> ><%= transport.transport.name %></li>
+		<% }) %>
+		</ul>
+	</div>
+</script>
+<script type="text/html" id="myTransportInfo">
+	<div class='detailBox'>
+		<h1> <%= transport.name %> </h1>
+		<table>
+			<tr><td>Distance</td><td><%= distance %> Units</td></tr>
+			<tr><td>Value</td><td>&#8377; <%= transport.initial_cost*0.8 %> Million</td></tr>
+			<tr><td>Travel Rate</td><td>&#8377; <%= transport.travel_rate %> Million</td></tr>
+			<tr><td>Cost per stop</td><td>&#8377; <%= transport.stopping_cost %> Million</td></tr>
+			<tr><td>Energy Rate</td><td><%= transport.energy_rate %> Units</td></tr>
+			<tr><td>CO2 Rate</td><td><%= transport.carbon_cost_rate %> Kilos</td></tr>
+		</table>
+	<br/>
+	<div class='buy'>Sell</div>
+	</div>
+</script>

@@ -40,11 +40,18 @@ define(['jquery','text!'+settings.static_prefix+'images/india.svg!strip'],functi
 	var highlight = (function(){
 	var transportsMap = $("div.transportsInfo > div.transportsMap");
 	transportsMap.html(svg);
-	
-	function highlight(vals, set){
+	transportsMap.on("click","path[class=availableState], path[class='availableState takenState']",function(ev){
+		var el = $(ev.target);
+		var set = el.attr("class") == "availableState";
+		var data = {coordx:el.attr("coordx"),coordy:el.attr("coordy")};
+		highlight(data,set);
+	});
+	function highlight(vals, set, taken){
 		set = set || false;
+		taken = taken || false;
 		var className = "", query = [];
 		className = set?"availableState takenState":"availableState";
+		if (taken == true) className = "takenState";
 		vals = vals || {};
 		if($.isEmptyObject(vals)){
 			transportsMap.find("path.availableState").attr("class","");

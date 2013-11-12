@@ -10,9 +10,24 @@ from collections import defaultdict
 from industry.models import ProductIndustry
 from energy.models import EnergyIndustry
 import decimal
+from django.contrib.auth import authenticate,login as auth_login
+from transport.models import Transport
 
 def index(request):
+    if not request.user.is_authenticated():
+        user_login = authenticate(username = "test2609_36",
+                                  password = "password")
+        auth_login(request,user_login)
     states = json.dumps(list(State.objects.values()),default=decimal_default)
+    
+    transportList = list(Transport.objects.values())
+    transportStates = Transport.states.through.objects.values('transport__id','state__id')  # @UndefinedVariable
+    tList = defaultdict(lambda:[])
+    for tr in transportStates:
+        tList[tr['transport__id']].append(tr['state__id'])
+    for transport in transportList:
+        transport['states'] = tList[transport['id']]
+    transports = json.dumps(transportList,default=decimal_default)
     
     energyList = list(EnergyIndustry.objects.values())
     energyStates = EnergyIndustry.states.through.objects.values('energyindustry__id','state__id')  # @UndefinedVariable
@@ -31,7 +46,7 @@ def index(request):
     for product in productsList:
         product['states'] = pList[product['id']]
     productIndustries = json.dumps(productsList,default=decimal_default)
-    return render(request,'index.html',{'states':states,'productIndustries':productIndustries,'energyIndustries':energyIndustries})
+    return render(request,'index.html',{'states':states,'productIndustries':productIndustries,'energyIndustries':energyIndustries,'transports':transports})
 
 class JsonMixin(object):
     '''
@@ -43,7 +58,7 @@ class JsonMixin(object):
     
     def json(self,context):
         #Can be modified later to be better
-        return json.dumps(list(context),default=decimal_default)
+        return json.dumps(context,default=decimal_default)
 
 class OnlyPostMixin(object):
     '''
@@ -67,7 +82,7 @@ class ApiTemplate(OnlyPostMixin,JsonMixin,View):
     '''
     Template for json response view
     '''
-    @method_decorator(check_ajax)
+    #@method_decorator(check_ajax)
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return View.dispatch(self, request, *args, **kwargs)

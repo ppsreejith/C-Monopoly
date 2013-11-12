@@ -71,7 +71,6 @@ class Command(BaseCommand):
         coordinates = [{"coordx":72,"coordy":22},{"coordx":73,"coordy":23},{"coordx":74,"coordy":15},{"coordx":77,"coordy":13},{"coordx":77,"coordy":30},{"coordx":73,"coordy":19},{"coordx":74,"coordy":26},{"coordx":78,"coordy":30},{"coordx":80,"coordy":27},{"coordx":77,"coordy":8},{"coordx":85,"coordy":25},{"coordx":76,"coordy":31},{"coordx":81,"coordy":21},{"coordx":77,"coordy":31},{"coordx":85,"coordy":20},{"coordx":91,"coordy":24},{"coordx":94,"coordy":25},{"coordx":93,"coordy":27},{"coordx":92,"coordy":25},{"coordx":92,"coordy":23},{"coordx":78,"coordy":17},{"coordx":88,"coordy":22},{"coordx":88,"coordy":27},{"coordx":80,"coordy":13},{"coordx":85,"coordy":23},{"coordx":77,"coordy":29},{"coordx":76,"coordy":33},{"coordx":91,"coordy":26}];
         
         profiles = []
-        realStates = self.getRealStates()
         if every or 'users' in args:
             limit = 100
             print "Generating %d users"%limit
