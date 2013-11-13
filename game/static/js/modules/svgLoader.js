@@ -58,6 +58,7 @@ define(['jquery','text!'+settings.static_prefix+'images/india.svg!strip'],functi
 		}
 		else if ($.isArray(vals)){
 			transportsMap.find("path.availableState").attr("class","");
+			transportsMap.find("path.takenState").attr("class","");
 			$.each(vals,function(index, value){
 				query.push("path[coordx="+value.coordx+"][coordy="+value.coordy+"]");
 			});

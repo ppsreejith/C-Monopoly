@@ -40,7 +40,9 @@ define(['jquery','lodash','backbone','models/transport'],function($,_,Backbone,T
 		template:_.template($("#myTransportsList").html()),
 		transports:null,
 		detailView:$('div.transportDetail'),
+		assignView:$('div.assignScreen'),
 		detailTemplate:_.template($("#myTransportInfo").html()),
+		assignTemplate:_.template($("#myAssignInfo").html()),
 		events:{
 			"click ul.Transports > li":"transportInfo",
 		},
@@ -54,6 +56,21 @@ define(['jquery','lodash','backbone','models/transport'],function($,_,Backbone,T
 			this.transports.fetch({success:function(){
 				that.render();
 			}});
+			globalEvent.on("assign:transport",function(data){
+				that.renderAssign(data.factory.attributes);
+			});
+			globalEvent.on("view:transport",function(data){
+				that.renderDetails(data.id);
+				App.router.navigate("game/transports",{trigger:true});
+			});
+			this.assignView.on("click","div.detailScreenInfo ul > li",function(ev){
+				var id =$(ev.target).data("id"), state_id =$(ev.target).data("state");
+				that.renderDetails(id);
+				var state = App.States.findWhere({id:state_id}).attributes;
+				$("div.transportsMap").find("svg").find("path[coordx="+state.coordx+"][coordy="+state.coordy+"]").attr("class","availableState chosenState");
+				$(ev.target).parent().find("li.chosenState").removeClass("chosenState");
+				$(ev.target).addClass("chosenState");
+			});
 		},
 		renderDetails:function(id){
 			var attrs = this.transports.findWhere({id:id}).attributes;
@@ -61,10 +78,33 @@ define(['jquery','lodash','backbone','models/transport'],function($,_,Backbone,T
 			App.highlight(states,true,true);
 			this.detailView.html(this.detailTemplate(attrs));
 			(function(id,that){
-				that.detailView.find("div.buy").click(function(ev){
+				that.detailView.find("div.buy.sell").click(function(ev){
 					globalEvent.trigger("sell:transport",{id:id});
 				});
 			})(id,this);
+		},
+		renderAssign:function(factory){
+			var state = factory.state.id, attrs = {};
+			var transports = this.transports.filter(function(transport){
+				return (transport.attributes.states.indexOf(state) > -1);
+			});
+			if (transports.length == 0){
+				this.assignView.find("div.detailScreenInfo").html("<div class='detailBox'><h1>No transports available for this factory</h1></div>");
+				this.assignView.show();
+				return;
+			}
+			attrs['transports'] = transports;
+			attrs['factory'] = factory;
+			this.assignView.find("div.detailScreenInfo").html(this.assignTemplate(attrs));
+			this.assignView.find("div.detailScreenInfo").find("div.buy.choose").click(function(ev){
+				var chosen = $(ev.target).parent().find("li.chosenState");
+				if(chosen.length == 0){
+					return;
+				}
+				var data = {factory:chosen.data("factory"), transport:chosen.data("id")};
+				globalEvent.trigger("assigned:transport",data);
+			});
+			this.assignView.show();
 		},
 		render:function(){
 			var transports = this.transports.map(function(transport){

@@ -15,12 +15,16 @@ define(['jquery','backbone'],function($,Backbone){
         },
         
         gameSwitchTo:function(option){
+        	this.switchTo("game");
+        	var nav = $("nav.gameNavigation"), url = "#game/"+option;
+        	nav.find("a.navSelected").removeClass("navSelected");
+        	nav.find("a[href='"+url+"']").addClass("navSelected");
         	$("div.screenInfo.active").removeClass("active");
             $("div.screenInfo."+option+"Info").addClass("active");
         },
         
         game:function(){
-            this.switchTo("game");
+            this.gameSwitchTo("industries");
         },
         changeInfo:function(option){
         	this.gameSwitchTo(option);

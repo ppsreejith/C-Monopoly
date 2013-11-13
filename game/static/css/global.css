@@ -203,7 +203,7 @@ div.middleLeftInfo{
 	left:0%;
 	width:75%;
 }
-div.detailScreen{
+div.detailScreen,div.assignScreen{
 	background:rgba(0,0,0,0.6);
 	z-index:9;
 	display:none;
@@ -295,6 +295,12 @@ path.availableState{
 }
 path.takenState{
 	fill:green !important;
+}
+path.chosenState{
+	fill:red !important;
+}
+li.chosenState{
+	color:green;
 }
 /* Scrollbar Stuff*/
 .body{

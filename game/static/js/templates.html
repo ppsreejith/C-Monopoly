@@ -111,6 +111,14 @@
     </table>
 	<br/>
 	<div class="buy sell" style="left:10%;">Sell</div><div class="buy halt" style="left:30%;"><%= halt %></div>
+	<br/><br/>
+	<% if(transport_id == null){ %>
+	<div style="width:50%;left:25%;" class="buy assign">Assign Transport</div>
+	<% }else{ %>
+	<div style="width:52%;left:24%;" class="buy view">View Transport</div>
+	<br/><br/>
+	<div style="width:52%;left:24%;" class="buy assign">Change Transport</div>
+	<% } %>
     <br/>
   </div>
 </script>
@@ -177,6 +185,19 @@
 			<tr><td>CO2 Rate</td><td><%= transport.carbon_cost_rate %> Kilos</td></tr>
 		</table>
 	<br/>
-	<div class='buy'>Sell</div>
+	<div class='buy sell'>Sell</div>
+	</div>
+</script>
+<script type="text/html" id="myAssignInfo">
+	<div class='detailBox'>
+		<h1> Choose Transport to assign to <%= factory.type.name %> </h1>
+		<br/>
+		<ul>
+		<% _.map(transports,function(transport){ %>
+			<li style='font-size:20px;' data-id='<%= transport.get('id') %>' data-factory='<%= factory.id %>' data-state='<%= factory.state.id %>' ><%= transport.get('transport').name %></li>
+		<% }) %>
+		</ul>
+		<br/>
+		<div class='buy choose'>Choose</div>
 	</div>
 </script>

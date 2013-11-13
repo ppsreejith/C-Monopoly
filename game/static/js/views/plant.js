@@ -27,7 +27,7 @@ define(['jquery','lodash','backbone','models/plant'],function($,_,Backbone, Plan
 			attr['halt'] = attr['shut_down']?'Restart':'Halt';
 			var template = _.template($("#my"+type+"Details").html());
 			this.detailEl.find("div.detailScreenInfo").html(template(attr));
-			(function(that,id,typeL){
+			(function(that,id,typeL,trans_id){
 				that.detailEl.find("input.selling_value").change(function(ev){
 					$(ev.target).parent().find("span.setPriceButton").show();
 				});
@@ -41,7 +41,14 @@ define(['jquery','lodash','backbone','models/plant'],function($,_,Backbone, Plan
 				that.detailEl.find("div.buy.halt").click(function(ev){
 					globalEvent.trigger("toggle:"+typeL,{id:id});
 				});
-			})(this,id,typeL);
+				that.detailEl.find("div.buy.assign").click(function(ev){
+					globalEvent.trigger("assign:transport",{factory:that.factories.findWhere({id:id})});
+					App.router.navigate("game/transports",{trigger:true});
+				});
+				that.detailEl.find("div.buy.view").click(function(ev){
+					globalEvent.trigger("view:transport",{id:trans_id});
+				});
+			})(this,id,typeL,attr['transport_id']);
 			this.detailEl.show();
 		},
 	    fetch:function(){
