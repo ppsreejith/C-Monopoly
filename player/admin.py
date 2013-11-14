@@ -1,5 +1,5 @@
 from django.contrib import admin
-from player.models import Player, ResearchProject
+from player.models import Player, ResearchProject, LogBook
 
 #Admin module for Player
 
@@ -10,3 +10,4 @@ class PlayerAdmin(admin.ModelAdmin):
 
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(ResearchProject)
+admin.site.register(LogBook)

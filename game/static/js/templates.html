@@ -1,6 +1,6 @@
 <script type="text/html" id="userTemplate">
   <div class='detailBox'>
-    <h1><%= username %></h1>
+    <h1><%= user__username %></h1>
     <table>
       <tr><td>Capital</td><td>&#8377; <%= capital %> Million</td></tr>
       <tr><td>Net Worth</td><td>&#8377; <%= netWorth %> Million</td></tr>
@@ -107,7 +107,7 @@
 	  <tr><td>Cost Price</td><td>&#8377; <%= type.cost_price %> Thousand</td></tr>
 	  <tr><td>Energy per unit</td><td><%= type.energy_per_unit %> Units</td></tr>
 	  <tr><td>Unit</td><td><%= type.unit %></td></tr>
-	  <tr><td>Selling Price</td><td>&#8377; <input type='number' class='selling_value' data-id='<%= id %>' value=<%= selling_price %> step=0.001 /> Thousand &nbsp; <span title='Change Price' class='setPriceButton'>&#9654;</span></td></tr>
+	  <tr><td>Selling Price</td><td>&#8377; <input type='number' class='selling_value numberInput' data-id='<%= id %>' value=<%= selling_price %> step=0.001 /> Thousand &nbsp; <span title='Change Price' class='setPriceButton'>&#9654;</span></td></tr>
     </table>
 	<br/>
 	<div class="buy sell" style="left:10%;">Sell</div><div class="buy halt" style="left:30%;"><%= halt %></div>
@@ -200,4 +200,12 @@
 		<br/>
 		<div class='buy choose'>Choose</div>
 	</div>
+</script>
+<script type="text/html" id="noloan">
+	<div style="width:50%;left:25%;" class='buy pay'>Take Loan</div>
+</script>
+<script type="text/html" id="loan">
+	<input class='payAmount' type="range" style="width:100%;" min = 0 value=0 max = <%= (loan.amount*loan.time_remaining) %>/>
+	&#8377;<input min=0 class='viewLoanAmount numberInput' value=0 type=number /> Million<br/>
+	<div style="width:50%;left:25%;" class='buy pay'>Pay Amount</div>
 </script>

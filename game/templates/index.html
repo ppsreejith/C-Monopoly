@@ -9,7 +9,7 @@
 			window.settings = {
 					static_prefix : "{% get_static_prefix %}",
 					user : {
-						username : "{{user.username}}",
+						user__username : "",
 						capital : 0,
 						netWorth : 0,
 						rank:0,
@@ -25,7 +25,7 @@
 	<body>
 		<img class="splashScreen" src="{% static "images/logo.png" %}" />
 		<div class="bigWrapper">
-			<div class="notifBar"><span class='username'>Welcome back <span>{{user.username}}</span></span></div>
+			<div class="notifBar"><span class='username'>Welcome back <span></span></span></div>
 			<div class="topBar">
 				<img src="{% static "images/logo.png" %}" class="logo"/>
 				<nav class="navigation">
@@ -86,8 +86,18 @@
 						</div>
 					</div>
 					<div class="govtInfo screenInfo">
-						<div class="leftInfo"></div>
-						<div class="middleInfo"></div>
+						<div class="leftInfo">
+							<ul class='govtNav'>
+								<li class='selected' name='loans'>Loans</li>
+								<li name='energy'>Energy</li>
+								<li name='research'>Research</li>
+							</ul>
+						</div>
+						<div class="middleInfo">
+							<div class='loans govtTile detailBox active'></div>
+							<div class='energy govtTile detailBox'></div>
+							<div class='research govtTile detailBox'></div>
+						</div>
 						<div class="rightInfo">
 							<div class="userInfo"></div>
 							<div class="otherUserInfo"></div>

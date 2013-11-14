@@ -32,11 +32,5 @@ class Transports(ApiTemplate):
 
 class Loans(ApiTemplate):
     def get(self, request):
-        loanList = list(LoansCreated.objects.filter(player__user__id = request.session.get('user_id')).values())
-        factories = LoansCreated.mortaged_industries.through.objects.values('loanscreated__id', 'factory__id')  # @UndefinedVariable
-        lList = defaultdict(lambda:[])
-        for factory in factories:
-            lList[factory['loanscreated__id']].append(factory['factory__id'])
-        for loan in loanList:
-            loan['factories'] = lList[loan['id']] 
-        return self.render(loanList)
+        loans = list(LoansCreated.objects.filter(player__user__id = request.session.get('user_id')).values())
+        return self.render(loans)

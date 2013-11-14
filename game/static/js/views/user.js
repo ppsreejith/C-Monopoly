@@ -8,6 +8,7 @@ var UserView = Backbone.View.extend({
     	var that = this;
     	this.user.fetch({success:function(){
     		settings.user = that.user.attributes;
+    		$("div.notifBar").find("span").find("span").html(settings.user.user__username);
     		that.render();
     	}});
     },    

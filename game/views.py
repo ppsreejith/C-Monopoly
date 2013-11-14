@@ -12,42 +12,57 @@ from energy.models import EnergyIndustry
 import decimal
 from django.contrib.auth import authenticate,login as auth_login
 from transport.models import Transport
+from django.db import connection
+from django.core.cache import cache
 
 def index(request):
+    queries = connection.queries
     if not request.user.is_authenticated():
         user_login = authenticate(username = "test2609_36",
                                   password = "password")
         auth_login(request,user_login)
-    states = json.dumps(list(State.objects.values()),default=decimal_default)
+    request.session['user_id'] = request.user.id
+    print len(queries)
+    states = cache.get('states')
+    productIndustries = cache.get('productIndustries')
+    energyIndustries = cache.get('energyIndustries')
+    transports = cache.get('transports')
     
-    transportList = list(Transport.objects.values())
-    transportStates = Transport.states.through.objects.values('transport__id','state__id')  # @UndefinedVariable
-    tList = defaultdict(lambda:[])
-    for tr in transportStates:
-        tList[tr['transport__id']].append(tr['state__id'])
-    for transport in transportList:
-        transport['states'] = tList[transport['id']]
-    transports = json.dumps(transportList,default=decimal_default)
-    
-    energyList = list(EnergyIndustry.objects.values())
-    energyStates = EnergyIndustry.states.through.objects.values('energyindustry__id','state__id')  # @UndefinedVariable
-    eList = defaultdict(lambda:[])
-    for en in energyStates:
-        eList[en['energyindustry__id']].append(en['state__id'])
-    for energy in energyList:
-        energy['states'] = eList[energy['id']]
-    energyIndustries = json.dumps(energyList,default=decimal_default)
-    
-    productsList = list(ProductIndustry.objects.values())
-    productStates = ProductIndustry.states.through.objects.values('productindustry__id','state__id')  # @UndefinedVariable
-    pList = defaultdict(lambda:[])
-    for pro in productStates:
-        pList[pro['productindustry__id']].append(pro['state__id'])
-    for product in productsList:
-        product['states'] = pList[product['id']]
-    productIndustries = json.dumps(productsList,default=decimal_default)
+    if any(n is None for n in [states,productIndustries,energyIndustries,transports]):
+        states = json.dumps(list(State.objects.values()),default=decimal_default)
+        cache.set('states',states)
+        transportList = list(Transport.objects.values())
+        transportStates = Transport.states.through.objects.values('transport__id','state__id')  # @UndefinedVariable
+        tList = defaultdict(lambda:[])
+        for tr in transportStates:
+            tList[tr['transport__id']].append(tr['state__id'])
+        for transport in transportList:
+            transport['states'] = tList[transport['id']]
+        transports = json.dumps(transportList,default=decimal_default)
+        cache.set('transports',transports)
+        
+        energyList = list(EnergyIndustry.objects.values())
+        energyStates = EnergyIndustry.states.through.objects.values('energyindustry__id','state__id')  # @UndefinedVariable
+        eList = defaultdict(lambda:[])
+        for en in energyStates:
+            eList[en['energyindustry__id']].append(en['state__id'])
+        for energy in energyList:
+            energy['states'] = eList[energy['id']]
+        energyIndustries = json.dumps(energyList,default=decimal_default)
+        cache.set('energyIndustries',energyIndustries)
+        
+        productsList = list(ProductIndustry.objects.values())
+        productStates = ProductIndustry.states.through.objects.values('productindustry__id','state__id')  # @UndefinedVariable
+        pList = defaultdict(lambda:[])
+        for pro in productStates:
+            pList[pro['productindustry__id']].append(pro['state__id'])
+        for product in productsList:
+            product['states'] = pList[product['id']]
+        productIndustries = json.dumps(productsList,default=decimal_default)
+        cache.set('productIndustries',productIndustries)
+    print len(queries)
     return render(request,'index.html',{'states':states,'productIndustries':productIndustries,'energyIndustries':energyIndustries,'transports':transports})
-
+    
 class JsonMixin(object):
     '''
     Mixin to generate Json responses.

@@ -17,7 +17,6 @@ div{
 	margin:0;
 	padding:0;
 	font-family: 'Source Sans Pro', sans-serif;
-	font-weight:bold;
 	overflow:hidden;
 }
 a{
@@ -120,6 +119,19 @@ nav.navigation{
 	width:40%;
 	text-align:right;
 }
+ul.govtNav{
+	color: white;
+	text-indent: 10%;
+	line-height: 200%;
+	padding-top: 10%;
+	font-size: 20px;
+}
+ul.govtNav > li{
+	cursor:pointer;
+}
+ul.govtNav > li.selected{
+	color:orange;
+}
 tr > td:nth-child(2){
 	text-align:right;
 }
@@ -217,11 +229,13 @@ div.detailScreenInfo{
 	position:absolute;
 }
 div.detailScreenInfo input{
+	width:30%;
+}
+input.numberInput{
 	background: transparent;
 	border: 0;
 	color: white;
 	outline: 0;
-	width:30%;
 }
 div.exit{
 	position:absolute;
@@ -271,6 +285,10 @@ div.detailBox li{
 	margin-top:3px;
 	cursor:pointer;
 }
+input.viewLoanAmount{
+	width:15%;
+	text-align:center;
+}
 div.screenInfo{
 	width:100%;
 	height:91%;
@@ -286,6 +304,9 @@ svg{
 }
 path{
 	cursor:pointer;
+}
+div.govtTile{
+	display:none;
 }
 path.nostate{
 	fill:white;
@@ -370,3 +391,6 @@ input[type=number]::-webkit-inner-spin-button:after {
     -webkit-transform: rotate(180deg);
 }
 /* css input number input ends here */
+/* input range css */
+
+/* input range css ends here */

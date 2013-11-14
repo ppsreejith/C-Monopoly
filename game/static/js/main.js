@@ -48,12 +48,13 @@ require(['jquery','domReady','backbone','models/state','models/industry','models
     	});
     	
     	// Main stuff
-    	require(['views/state','views/user','views/plant','views/transport'],function(stateView,userView,PlantView,Transports){
+    	require(['views/state','views/user','views/plant','views/transport','views/govt'],function(stateView,userView,PlantView,Transports,Govt){
     		var state = new stateView();
     		var user = new userView();
     		var plant = new PlantView();
     		var transport = new Transports.TransportView();
     		var myTransport = new Transports.MyTransportView();
+    		var govt = new Govt.LoanView();
     	});
     	
     	// Other boring event listeners and triggers

@@ -77,10 +77,23 @@ define(['jquery','lodash','backbone','models/plant'],function($,_,Backbone, Plan
 	    	this.powerplants = new Plant.Powerplants();
 	    	this.fetch();
 	    	var that = this;
+	    	(function(that){
 	    	globalEvent.on("change:state",function(state){
 	    		that.state = state;
 	    		that.update();
 	    	});
+	    	globalEvent.on("pass:factoryIds",function(data){
+	    		var ids = data.ids,factories = [];
+	    		if(ids.length == 0){
+	    			globalEvent.trigger("passed:allFactories",{factories:that.factories.models});
+	    			return;
+	    		}
+	    		for(i in ids){
+	    			factories.push(that.factories.findWhere({id:ids[i]}));
+	    		}
+	    		globalEvent.trigger("passed:factories",{factories:factories});
+	    	});
+	    	}(this));
 	    },
 	    render:function(){
 	    	this.$el.html(this.template({products:this.currentFactories,energies:this.currentPowerplants}));
