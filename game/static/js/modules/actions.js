@@ -32,4 +32,16 @@ define(['backbone'],function(Backbone){
 	globalEvent.on("assigned:transport",function(data){
 		console.log(data);
 	});
+	globalEvent.on("take:loan",function(data){
+		console.log(data);
+	});
+	globalEvent.on("pay:loan",function(data){
+		console.log(data);
+	});
+	globalEvent.on("propose:energy",function(data){
+		console.log(data);
+	});
+	globalEvent.on("set:sellingenergy",function(data){
+		console.log(data);
+	});
 });

@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, url
-from actions.views import User, Factories, Powerplants, Transports, Loans
+from actions.views import User, Factories, Powerplants, Transports, Loans,\
+    EnergyMarket
 
 
 urlpatterns = patterns('',
@@ -8,4 +9,5 @@ urlpatterns = patterns('',
      url(r'^powerplants',Powerplants.as_view()),
      url(r'^transports',Transports.as_view()),
      url(r'^loans',Loans.as_view()),
+     url(r'^energymarket',EnergyMarket.as_view()),
 )

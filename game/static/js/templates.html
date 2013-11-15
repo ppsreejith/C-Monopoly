@@ -177,12 +177,12 @@
 	<div class='detailBox'>
 		<h1> <%= transport.name %> </h1>
 		<table>
-			<tr><td>Distance</td><td><%= distance %> Units</td></tr>
 			<tr><td>Value</td><td>&#8377; <%= transport.initial_cost*0.8 %> Million</td></tr>
-			<tr><td>Travel Rate</td><td>&#8377; <%= transport.travel_rate %> Million</td></tr>
-			<tr><td>Cost per stop</td><td>&#8377; <%= transport.stopping_cost %> Million</td></tr>
-			<tr><td>Energy Rate</td><td><%= transport.energy_rate %> Units</td></tr>
-			<tr><td>CO2 Rate</td><td><%= transport.carbon_cost_rate %> Kilos</td></tr>
+			<tr><td>Distance</td><td><%= distance %> Units</td></tr>
+			<tr><td>Travel Cost</td><td>&#8377; <%= (transport.travel_rate * distance).toFixed(2) %> Million</td></tr>
+			<tr><td>Stopping Cost</td><td>&#8377; <%= ( states.length*transport.stopping_cost ).toFixed(2) %> Million</td></tr>
+			<tr><td>Energy Cost</td><td><%= (transport.energy_rate * distance).toFixed(2) %> Units</td></tr>
+			<tr><td>CO2 Emission</td><td><%= (transport.carbon_cost_rate * distance).toFixed(2) %> Kilos</td></tr>
 		</table>
 	<br/>
 	<div class='buy sell'>Sell</div>
@@ -202,10 +202,55 @@
 	</div>
 </script>
 <script type="text/html" id="noloan">
-	<div style="width:50%;left:25%;" class='buy pay'>Take Loan</div>
+	<h1>Industries to mortage</h1>
+	<br/>
+	<% _.each(factories,function(factory){ %>
+		<div data-amount=<%= factory.get('actual_value') %> data-id=<%= factory.get('id') %> class="mortaged_industries noloan" ><%= factory.get('type').name %> &nbsp; worth &nbsp; &#8377; <%= factory.get('actual_value') %> &nbsp; Million</div>
+	<% }) %>
+	<br/><br/><br/>
+	<h2>Amount to take</h2> 
+	<input class='payAmount' type="range" style="width:100%;" min = 0 value=0 max=0 />
+	<br/><br/> 
+	<span style="font-size:30px;">&#8377;</span><input min=0 class='viewLoanAmount numberInput' value=0 type=number /> Million<br/><br/>
+	<br/> 
+	<div style="width:50%;left:25%;" class='buy take'>Take Loan</div>
 </script>
 <script type="text/html" id="loan">
-	<input class='payAmount' type="range" style="width:100%;" min = 0 value=0 max = <%= (loan.amount*loan.time_remaining) %>/>
-	&#8377;<input min=0 class='viewLoanAmount numberInput' value=0 type=number /> Million<br/>
+	<h1>Loan Information</h1>
+	<br/> 
+	<table>
+	<tr><td>Monthly Loan Amount</td><td> &#8377; <%= loan.amount %> Million</td></tr>
+	<tr><td>Time Remaining</td><td style="width:50%;text-align:left;">
+		<div style="text-align:center;background:green;height:100%;color:yellow;width:<%= (loan.time_remaining * 100)/12 %>%;"><%= loan.time_remaining %> Months</div>
+	</td></tr>
+	</table>
+	<br/><br/><br/> 
+	<h1>Mortaged Industries</h1>
+	<br/>
+	<% _.each(factories,function(factory){ %>
+		<div class="mortaged_industries" ><%= factory.get('type').name %> &nbsp; worth &nbsp; &#8377; <%= factory.get('actual_value') %> &nbsp; Million</div>
+	<% }) %>
+	<br/><br/><br/>
+	<h2>Pay back amount</h2>
+	<input class='payAmount' type="range" style="width:100%;" min = 0 value=0 max=<%= (loan.amount*loan.time_remaining) %> />
+	<br/><br/><br/>
+	<span style="font-size:30px;">&#8377;</span><input min=0 class='viewLoanAmount numberInput' value=0 type=number /> Million<br/><br/>
 	<div style="width:50%;left:25%;" class='buy pay'>Pay Amount</div>
+</script>
+<script type="text/html" id="energyMarketTop">
+	<span style="position:absolute;top:5px;font-size:20px;">Selling extra energy?</span>
+	<div class="onoffswitch" style="position:absolute;right:5%;">
+    	<input type="checkbox" name="onoffswitch" id="myonoffswitch" checked <% if (selling){ %> class="onoffswitch-checkbox selected" <% } else{ %> class="onoffswitch-checkbox" <% } %> >
+    	<label class="onoffswitch-label" for="myonoffswitch">
+	        <div class="onoffswitch-inner"></div>
+    	    <div class="onoffswitch-switch"></div>
+    	</label>
+	</div>
+</script>
+<script type="text/html" id="energyMarket">
+	<div class='energySellerBox' data-id=<%= seller.id %>>
+		<span class='seller-name'><%= seller.user__username %></span><br/>
+		<span class='seller-rank'>Rank <%= seller.rank %></span><br/>
+		<span class='seller-units'><%= seller.extra_energy %> Units</span>
+	</div>
 </script>

@@ -171,8 +171,7 @@ class Profile(Player):
         self.Research.delete()
         LogBook.objects.create(player = self, message = "Research Project Cancelled.")
     
-    def takeLoan(self,amount,time, industries):
-        time = Decimal(time)
+    def takeLoan(self,amount,industries,time = 12):
         amount = Decimal(amount)
         loan_amount = amount*(Decimal(100.0)+GlobalConstants.objects.get().loan_interest_rate)/Decimal(100.0)
         currentLoanCreated = LoansCreatedForm({'player':self.id, 'amount':loan_amount/time, 'time_remaining':time, 'mortaged_industries':industries})

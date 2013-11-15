@@ -13,6 +13,7 @@
 						capital : 0,
 						netWorth : 0,
 						rank:0,
+						selling_energy:false,
 					},
 					states:{{states|safe}},
 					productIndustries:{{productIndustries|safe}},
@@ -90,12 +91,15 @@
 							<ul class='govtNav'>
 								<li class='selected' name='loans'>Loans</li>
 								<li name='energy'>Energy</li>
-								<li name='research'>Research</li>
+								<!--<li name='research'>Research</li> -->
 							</ul>
 						</div>
 						<div class="middleInfo">
 							<div class='loans govtTile detailBox active'></div>
-							<div class='energy govtTile detailBox'></div>
+							<div class='energy govtTile detailBox'>
+								<div class='selling_energy_switchBox'></div>
+								<div class='market_box detailBox' style='height:87%;top:13%;position:absolute;'></div>
+							</div>
 							<div class='research govtTile detailBox'></div>
 						</div>
 						<div class="rightInfo">

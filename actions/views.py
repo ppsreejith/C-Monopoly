@@ -4,10 +4,15 @@ from industry.models import Factory, LoansCreated
 from energy.models import PowerPlant
 from transport.models import TransportCreated
 from collections import defaultdict
+from django.db import connection
+import random
 
 class User(ApiTemplate):
     def get(self,request):
-        return self.render(Profile.objects.values('user__username','capital','netWorth','rank','extra_energy','energy_capacity').get(user__id = request.session.get('user_id')))
+        qu = connection.queries
+        res = self.render(Profile.objects.values('user__username','capital','netWorth','rank','extra_energy','energy_capacity','selling_energy').get(user__id = request.session.get('user_id')))
+        print len(qu)
+        return res
 
 class Factories(ApiTemplate):
     def get(self,request):
@@ -40,3 +45,10 @@ class Loans(ApiTemplate):
         for loan in loanList:
             loan['factories'] = lList[loan['id']] 
         return self.render(loanList)
+
+class EnergyMarket(ApiTemplate):
+    def get(self, request):
+        rand = random.randint(1,Profile.objects.count() - 20)
+        limit = 9
+        users = list(Profile.objects.filter(selling_energy = False).filter(rank__gte = rand).values('id','user__username','rank','extra_energy')[:limit])
+        return self.render(users)

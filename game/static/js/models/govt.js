@@ -3,7 +3,7 @@ define(['backbone'], function(Backbone){
 		defaults:{
 			amount:0,
 			time:0,
-			industries:[],
+			factories:[],
 		},
 	});
 	
@@ -24,8 +24,25 @@ define(['backbone'], function(Backbone){
 		url:'/api/logbook',
 	});
 	
+	var EnergyTrader = Backbone.Model.extend({
+		defaults:{
+			user__username:"",
+			extra_energy:"",
+			rank:0,
+		},
+	});
+	
+	var EnergyMarket = Backbone.Collection.extend({
+		model: EnergyTrader,
+		url:'/api/energymarket',
+		comparator:function(model){
+			return model.get('rank');
+		},
+	});
+	
 	return {
 		Loans:Loans,
 		LogBook:LogBook,
+		EnergyMarket:EnergyMarket,
 	};
 });

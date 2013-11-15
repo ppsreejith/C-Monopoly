@@ -10,6 +10,7 @@ var UserView = Backbone.View.extend({
     		settings.user = that.user.attributes;
     		$("div.notifBar").find("span").find("span").html(settings.user.user__username);
     		that.render();
+    		globalEvent.trigger("updated:user",{});
     	}});
     },    
     initialize:function(){

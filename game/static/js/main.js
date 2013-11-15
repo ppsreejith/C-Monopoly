@@ -54,7 +54,8 @@ require(['jquery','domReady','backbone','models/state','models/industry','models
     		var plant = new PlantView();
     		var transport = new Transports.TransportView();
     		var myTransport = new Transports.MyTransportView();
-    		var govt = new Govt.LoanView();
+    		var loan = new Govt.LoanView();
+    		var market = new Govt.MarketView();
     	});
     	
     	// Other boring event listeners and triggers

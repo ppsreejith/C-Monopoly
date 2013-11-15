@@ -15,6 +15,7 @@ from transport.models import Transport
 from django.db import connection
 from django.core.cache import cache
 
+#Complicated code ahead. Beware!
 def index(request):
     queries = connection.queries
     if not request.user.is_authenticated():
@@ -62,7 +63,9 @@ def index(request):
         cache.set('productIndustries',productIndustries)
     print len(queries)
     return render(request,'index.html',{'states':states,'productIndustries':productIndustries,'energyIndustries':energyIndustries,'transports':transports})
-    
+
+#Phew complicated shit over. :)
+
 class JsonMixin(object):
     '''
     Mixin to generate Json responses.
