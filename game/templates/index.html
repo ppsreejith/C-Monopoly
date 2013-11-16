@@ -5,7 +5,9 @@
 		<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300" rel="stylesheet" type="text/css">
 		<link href="{% static "css/global.css" %}" rel="stylesheet" type="text/css">
 		<title>C-Monopoly</title>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 		<script type="text/javascript">
+			google.load("visualization", "1", {packages:["corechart"]});
 			window.settings = {
 					static_prefix : "{% get_static_prefix %}",
 					user : {
@@ -19,6 +21,11 @@
 					productIndustries:{{productIndustries|safe}},
 					energyIndustries:{{energyIndustries|safe}},
 					transports:{{transports|safe}},
+					date:{
+						current_day:1,
+						current_month:1,
+						current_year:1970,
+					},
 				};
 		</script>
 		<script type="text/javascript" src="{% static "js/require.js" %}" data-main="{% static "js/main.js" %}" ></script>
@@ -29,6 +36,7 @@
 			<div class="notifBar"><span class='username'>Welcome back <span></span></span></div>
 			<div class="topBar">
 				<img src="{% static "images/logo.png" %}" class="logo"/>
+				<div class="gameDate"></div>
 				<nav class="navigation">
 					<a href="#game">Home</a>
 					<a href="#about">About us</a>
@@ -88,19 +96,19 @@
 					</div>
 					<div class="govtInfo screenInfo">
 						<div class="leftInfo">
-							<ul class='govtNav'>
+							<ul class='insideNav'>
 								<li class='selected' name='loans'>Loans</li>
 								<li name='energy'>Energy</li>
 								<!--<li name='research'>Research</li> -->
 							</ul>
 						</div>
 						<div class="middleInfo">
-							<div class='loans govtTile detailBox active'></div>
-							<div class='energy govtTile detailBox'>
+							<div class='loans insideTile detailBox active'></div>
+							<div class='energy insideTile detailBox'>
 								<div class='selling_energy_switchBox'></div>
 								<div class='market_box detailBox' style='height:87%;top:13%;position:absolute;'></div>
 							</div>
-							<div class='research govtTile detailBox'></div>
+							<div class='research insideTile detailBox'></div>
 						</div>
 						<div class="rightInfo">
 							<div class="userInfo"></div>
@@ -108,8 +116,21 @@
 						</div>
 					</div>
 					<div class="officeInfo screenInfo">
-						<div class="leftInfo"></div>
-						<div class="middleInfo"></div>
+						<div class="leftInfo">
+							<ul class='insideNav'>
+								<li class='selected' name='accounts' >Accounts</li>
+								<li name='history'>History</li>
+							</ul>
+						</div>
+						<div class="middleInfo">
+							<div class='accounts insideTile detailBox active'>
+								<div class="lines"></div>
+								<h4>Account Book</h4>
+								<ul class="list accountsList">
+								</ul>
+							</div>
+							<div class='history insideTile detailBox' id='chart_div'></div>
+						</div>
 						<div class="rightInfo">
 							<div class="userInfo"></div>
 							<div class="otherUserInfo"></div>

@@ -6,13 +6,12 @@ from transport.models import TransportCreated
 from collections import defaultdict
 from django.db import connection
 import random
+from game.models import GlobalConstants
+from player.models import LogBook
 
 class User(ApiTemplate):
     def get(self,request):
-        qu = connection.queries
-        res = self.render(Profile.objects.values('user__username','capital','netWorth','rank','extra_energy','energy_capacity','selling_energy').get(user__id = request.session.get('user_id')))
-        print len(qu)
-        return res
+        return self.render(Profile.objects.values('user__username','capital','netWorth','rank','extra_energy','energy_capacity','selling_energy').get(user__id = request.session.get('user_id')))
 
 class Factories(ApiTemplate):
     def get(self,request):
@@ -52,3 +51,13 @@ class EnergyMarket(ApiTemplate):
         limit = 9
         users = list(Profile.objects.filter(selling_energy = False).filter(rank__gte = rand).values('id','user__username','rank','extra_energy')[:limit])
         return self.render(users)
+
+class Dates(ApiTemplate):
+    def get(self, request):
+        curDate = GlobalConstants.objects.values('current_day','current_month','current_year').get();
+        return self.render(curDate)
+
+class Logs(ApiTemplate):
+    def get(self, request):
+        logs = list(LogBook.objects.filter(player__user__id = request.session['user_id']).order_by('id').values('message','id'))
+        return self.render(logs)

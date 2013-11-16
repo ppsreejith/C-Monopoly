@@ -22,10 +22,19 @@ define(['backbone'], function(Backbone){
 	    },
 	});
 	
+	var GameDate = Backbone.Model.extend({
+		defaults:{
+			current_day:1,
+			current_month:1,
+			current_year:1970,
+		},
+		url:'/api/date',
+	});
+	
 	return {
 		Leaderboard: Leaderboard,
 		Player: Player,
 		User: User,
+		GameDate: GameDate,
 	};
-	
 });

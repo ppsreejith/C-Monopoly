@@ -4,16 +4,19 @@ require(['jquery'],function($){
 		$(this).parent().find("a.navSelected").removeClass("navSelected");
 		$(this).addClass("navSelected");
 	});*/
-	$("nav.gameNavigation").find("a[href='"+location.hash+"']").addClass("navSelected");
-	$("div.govtInfo").find("ul.govtNav > li").click(function(ev){
+	$("nav.gameNavigation").find("a[href='"+location.hash+"']").addClass("navSelected");	
+	$("div.govtInfo, div.officeInfo").find("ul.insideNav > li").click(screenAnimation);
+	$("div.bigWrapper").css({opacity:1});
+	$("img.splashScreen").css({opacity:0});
+	
+	function screenAnimation(ev){
 		var target = $(ev.target);
 		var name = target.attr("name"), parent = $(ev.target).parent().parent().parent();
 		target.parent().find("li.selected").removeClass("selected");
 		target.addClass("selected");
-		parent.find("div.govtTile.active").removeClass("active");
-		parent.find("div.govtTile."+name).addClass("active");
-	});
-	$("div.bigWrapper").css({opacity:1});
-	$("img.splashScreen").css({opacity:0});
+		parent.find("div.insideTile.active").removeClass("active");
+		parent.find("div.insideTile."+name).addClass("active");
+	}
+	
 	//return true;
 });

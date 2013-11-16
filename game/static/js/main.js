@@ -48,18 +48,22 @@ require(['jquery','domReady','backbone','models/state','models/industry','models
     	});
     	
     	// Main stuff
-    	require(['views/state','views/user','views/plant','views/transport','views/govt'],function(stateView,userView,PlantView,Transports,Govt){
-    		var state = new stateView();
-    		var user = new userView();
+    	require(['views/state','views/user','views/plant','views/transport','views/govt','views/office'],function(StateView,User,PlantView,Transports,Govt,Office){
+    		var state = new StateView();
+    		var gameDate = new User.GameDate();
+    		var office = new Office.HistoryView();
+    		var accountsView = new Office.AccountsView();
     		var plant = new PlantView();
     		var transport = new Transports.TransportView();
     		var myTransport = new Transports.MyTransportView();
     		var loan = new Govt.LoanView();
     		var market = new Govt.MarketView();
+    		var user = new User.UserView();
     	});
     	
     	// Other boring event listeners and triggers
     	require(['modules/effects']);
+    	
     	
     });
     return {};

@@ -240,7 +240,7 @@
 <script type="text/html" id="energyMarketTop">
 	<span style="position:absolute;top:5px;font-size:20px;">Selling extra energy?</span>
 	<div class="onoffswitch" style="position:absolute;right:5%;">
-    	<input type="checkbox" name="onoffswitch" id="myonoffswitch" checked <% if (selling){ %> class="onoffswitch-checkbox selected" <% } else{ %> class="onoffswitch-checkbox" <% } %> >
+    	<input type="checkbox" name="onoffswitch" id="myonoffswitch" class="onoffswitch-checkbox" <% if (selling){ %> checked <% } %>>
     	<label class="onoffswitch-label" for="myonoffswitch">
 	        <div class="onoffswitch-inner"></div>
     	    <div class="onoffswitch-switch"></div>
@@ -253,4 +253,10 @@
 		<span class='seller-rank'>Rank <%= seller.rank %></span><br/>
 		<span class='seller-units'><%= seller.extra_energy %> Units</span>
 	</div>
+</script>
+<script type="text/html" id="energyMarketButtons">
+	<input type='number' class='numberInput energyMarketInput energyAmount' placeholder='Enter amount to buy' />
+	<input type='number' class='numberInput energyMarketInput energyCost' placeholder='Enter price' /><br/><br/>
+	<div class='buy propose' style="left:10%;">Buy</div>
+	<div class='buy refresh' style='left:20%;'>Refresh</div>
 </script>
