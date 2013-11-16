@@ -18,7 +18,7 @@ define(['backbone'], function(Backbone){
 	    url:'/api/leaderboard',
 	    
 	    comparator:function(model){
-		return model.get('rank');
+	    	return model.get('rank');
 	    },
 	});
 	

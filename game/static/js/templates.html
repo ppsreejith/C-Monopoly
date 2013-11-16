@@ -260,3 +260,11 @@
 	<div class='buy propose' style="left:10%;">Buy</div>
 	<div class='buy refresh' style='left:20%;'>Refresh</div>
 </script>
+<script type="text/html" id="leaderboardTemplate">
+<table>
+	<tr style="border-bottom:0px;"><th style="width:10%;text-align:center;">Rank</th><th style="text-align:center;width:50%;">Username</th><th style="text-align:left;width:20%;">Capital</th><th style="text-align:left;width:20%;">Net Worth</th></tr>
+	<% _.map(ranks,function(player){ %>
+		<tr style="margin:3px;text-align:center;background:rgba(89,59,23,0.6);"><td><%= player.rank %></td><td style="text-align:center;"><%= player.user__username %></td><td style="text-align:left;"><%= player.capital %> M</td><td style="text-align:left;"><%= player.netWorth %> M</td></tr>
+	<% }) %>
+</table>
+</script>

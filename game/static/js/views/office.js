@@ -14,44 +14,44 @@ define(['jquery','lodash','backbone','models/govt'],function($,_,Backbone,Govt){
 	var HistoryView = Backbone.View.extend({
 		el:'div.insideTile.history',
 		history:[],
-		visibleFlag:false,
 		initData:function(){
 			var data = [];
 			data.push(["Day","Net Worth","Capital"]);
 			data.push(["1",settings.user.netWorth,settings.user.capital]);
 			data.push(["2",settings.user.netWorth,settings.user.capital]);
-			localStorage.data = JSON.stringify(data);
 			this.history = data;
 		},
 		update:function(){
+			
+			(function(that){
+				$("li[name=history]").on("click",function(){
+					that.render();
+					$(this).off("click",arguments.callee);
+				});
+			}(this));
+			
 			var last = this.history.slice(-1)[0];
-			if (settings.user.capital == last[2] && settings.user.netWorth == last[1]){
+			if (settings.user.netWorth == last[1] && settings.user.capital == last[2]){
 				return;
 			}
 			this.history.push([""+(parseInt(last[0])+1), settings.user.capital, settings.user.netWorth]);
 			localStorage.data = JSON.stringify(this.history);
+			
 		},
 		initialize:function(){
 			(function(that){
 				globalEvent.on("updated:user",function(){
-					if(localStorage.data == null)
+					if(localStorage.data == null){
 						that.initData();
+					}
 					else{
 						that.history = JSON.parse(localStorage.data);
-						that.update();
 					}
-					$("li[name=history]").on("click",function(){
-						that.visibleFlag = true;
-						that.render();
-						console.log(this);
-						$(this).off("click",arguments.callee);
-					});
+					that.update();
 				});
 			}(this));
 		},
 		render:function(){
-			if (this.visibleFlag == false)
-				return;
 			drawChart(this.history);
 			this.$el.css({background:"white"});
 		},
@@ -73,12 +73,7 @@ define(['jquery','lodash','backbone','models/govt'],function($,_,Backbone,Govt){
 			}(this));
 		},
 		render:function(){
-			var content = "";
-			console.log(this.$el);
-			this.logBook.each(function(Log){
-				content += "<li>"+Log.get('message')+"</li>";
-			});
-			this.$el.html(content);
+			this.$el.html( "<li>"+this.logBook.pluck('message').join("</li><li>")+"</li>" );
 		},
 	});
 	

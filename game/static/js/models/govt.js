@@ -22,6 +22,9 @@ define(['backbone'], function(Backbone){
 	var LogBook = Backbone.Collection.extend({
 		model: Log,
 		url:'/api/logbook',
+		comparator:function(model){
+	    	return -model.get('id');
+	    },
 	});
 	
 	var EnergyTrader = Backbone.Model.extend({

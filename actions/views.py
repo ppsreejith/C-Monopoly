@@ -61,3 +61,8 @@ class Logs(ApiTemplate):
     def get(self, request):
         logs = list(LogBook.objects.filter(player__user__id = request.session['user_id']).order_by('id').values('message','id'))
         return self.render(logs)
+
+class Ranks(ApiTemplate):
+    def get(self, request):
+        players = list(Profile.objects.order_by('rank').values('id','rank','user__username','capital','netWorth')[:10])
+        return self.render(players)

@@ -1,32 +1,28 @@
-define(['jquery','lodash','backbone','models/rank'],function($,_,Backbone,RankList){
+define(['jquery','lodash','backbone','models/user'],function($,_,Backbone,User){
 
-var RankView = Backbone.View.extend({
-    el:'div.leaderboardRanks',
-    template:_.template($("#leaderBoardTemplate").html()),
-    initialize:function(){
-	var that = this;
-	this.rankCollection = new RankList();
-	this.rankCollection.fetch({
-	    success:function(){
-		that.render();
-	    }
-	});
-    },
-    render:function(){
-	var currentRanks = this.rankCollection.models;
-	html = "";
-	for(rInd in currentRanks){
-	    rank = currentRanks[rInd];
-	    html += this.template(
-		{'rank':(rank.get('rank')+"").substr(0,5),
-		 'name':rank.get('username'),
-		 'score':rank.get('score')}
-				 );
-	};
-	this.$el.html(html);
-    }
+var Ranks = Backbone.View.extend({
+	ranks:null,
+	el:'div.detailBox.leaderboard',
+	template:_.template($("#leaderboardTemplate").html()),
+	initialize:function(){
+		this.ranks = new User.Leaderboard();
+		var that = this;
+		this.ranks.fetch({
+			success:function(){
+				that.render();
+			}
+		});
+	},
+	render:function(){
+		var ranks = this.ranks.map(function(model){
+			return model.attributes;
+		});
+		this.$el.html(this.template({ranks:ranks}));
+	},
 });
 
-return RankView;
+return {
+		Ranks:Ranks
+	};
 
 });

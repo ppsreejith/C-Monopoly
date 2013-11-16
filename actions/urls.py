@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 from actions.views import User, Factories, Powerplants, Transports, Loans,\
-    EnergyMarket, Dates, Logs
+    EnergyMarket, Dates, Logs, Ranks
 
 
 urlpatterns = patterns('',
@@ -12,4 +12,5 @@ urlpatterns = patterns('',
      url(r'^energymarket',EnergyMarket.as_view()),
      url(r'^date',Dates.as_view()),
      url(r'^logbook',Logs.as_view()),
+     url(r'^leaderboard',Ranks.as_view()),
 )

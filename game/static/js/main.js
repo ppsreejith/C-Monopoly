@@ -48,7 +48,8 @@ require(['jquery','domReady','backbone','models/state','models/industry','models
     	});
     	
     	// Main stuff
-    	require(['views/state','views/user','views/plant','views/transport','views/govt','views/office'],function(StateView,User,PlantView,Transports,Govt,Office){
+    	require(['views/state','views/user','views/plant','views/transport','views/govt','views/office','views/rank'],
+    			function(StateView,User,PlantView,Transports,Govt,Office,Rank){
     		var state = new StateView();
     		var gameDate = new User.GameDate();
     		var office = new Office.HistoryView();
@@ -59,6 +60,7 @@ require(['jquery','domReady','backbone','models/state','models/industry','models
     		var loan = new Govt.LoanView();
     		var market = new Govt.MarketView();
     		var user = new User.UserView();
+    		var ranks = new Rank.Ranks();
     	});
     	
     	// Other boring event listeners and triggers

@@ -81,6 +81,26 @@ div.menuBar{
 	left:0%;
 	background:rgba(0,0,0,0.6);
 }
+div.leaderboard{
+	width:100%;
+	height:100%;
+	top:0;
+	padding:0 !important;
+	left:0;
+}
+div.leaderboard table{
+	height:98%;
+	border-collapse:collapse;
+	width:98% !important;
+	left:2% !important;
+}
+div.leaderboard table tr > th{
+	color:#D18C37;
+	text-decoration:underline;
+}
+div.leaderboard table tr{
+	border-bottom:2px solid black;
+}
 div.mainBar{
 	height:84%;
 	top:14%;
@@ -165,7 +185,7 @@ div.buy{
 	box-shadow:inset 0 0 0 1px rgba(255,255,255,0.5);
 }
 div.insideTile.accounts{
-	background-color :#f5f5f5;
+	background-color :#F5F5BC;
 	padding:0;
 }
 div.insideTile.accounts > h4 {
@@ -178,14 +198,16 @@ div.insideTile.accounts > h4 {
   position:absolute;
   top:0;
   left;
-  height:50px;
-  background:#f5f5f5;
+  height:10%;
+  background:#F5F5BC;
   width:100%;
 }
 div.insideTile.accounts > .list {
   color: #555;
   position:absolute;
-  top:50px;
+  top:10%;
+  height:92%;
+  overflow-y:scroll;
   left:0;
   font-size: 22px;
   padding: 0 !important;
@@ -222,12 +244,12 @@ div.energySellerBox{
 	width:30%;
 	cursor:pointer;
 	margin:1%;
-	background:rgba(255,255,0,0.3);
+	background:rgba(203,132,52,0.3);
 	min-height:100px;
 	position:relative;
 }
 div.energySellerBox.selected{
-	background:rgba(255,255,0,0.6);
+	background:rgba(203,132,52,0.7);
 }
 span.seller-rank{
 	position:absolute;
@@ -272,7 +294,7 @@ div.menuBar > nav.gameNavigation > a{
 	margin:0 3%;
 }
 div.menuBar > nav.gameNavigation > a.navSelected{
-	color:#A16E2D !important;
+	color:#D18C37 !important;
 }
 div.mainScreen{
 	width:100%;
