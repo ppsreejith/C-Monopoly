@@ -4,7 +4,7 @@
 	<head>
 		<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300" rel="stylesheet" type="text/css">
 		<link href="{% static "css/global.css" %}" rel="stylesheet" type="text/css">
-		<title>C-Monopoly</title>
+		<title>C-Monopoly | Establish your eco-friendly empire</title>
 		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 		<script type="text/javascript">
 			google.load("visualization", "1", {packages:["corechart"]});
@@ -31,9 +31,12 @@
 		<script type="text/javascript" src="{% static "js/require.js" %}" data-main="{% static "js/main.js" %}" ></script>
 	</head>
 	<body>
+		<div class='cover'>
+			<img alt="loading" src="{% static "images/loading.gif" %}" />
+		</div>
 		<img class="splashScreen" src="{% static "images/logo.png" %}" />
 		<div class="bigWrapper">
-			<div class="notifBar"><span class='username'>Welcome back <span></span></span></div>
+			<div class="notifBar"><span class='username'>Welcome back <span></span>&nbsp;&nbsp; <a href='/logout'>Logout</a></span></div>
 			<div class="topBar">
 				<img src="{% static "images/logo.png" %}" class="logo"/>
 				<div class="gameDate"></div>

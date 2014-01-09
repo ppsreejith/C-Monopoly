@@ -4,7 +4,15 @@ require(['jquery'],function($){
 		$(this).parent().find("a.navSelected").removeClass("navSelected");
 		$(this).addClass("navSelected");
 	});*/
-	$("nav.gameNavigation").find("a[href='"+location.hash+"']").addClass("navSelected");	
+	$("nav.gameNavigation").find("a[href='"+location.hash+"']").addClass("navSelected");
+	globalEvent.on("wait:wait",function(data){
+		console.log(data);
+		$("div.cover").show();
+	});
+	globalEvent.on("resume:resume",function(data){
+		console.log(data);
+		$("div.cover").hide();
+	});
 	$("div.govtInfo, div.officeInfo").find("ul.insideNav > li").click(screenAnimation);
 	$("div.bigWrapper").css({opacity:1});
 	$("img.splashScreen").css({opacity:0});

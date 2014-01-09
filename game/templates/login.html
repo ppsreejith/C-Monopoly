@@ -1,0 +1,155 @@
+<!doctype html />
+<html>
+{% load static %}
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>C-Monopoly | Establish your eco-friendly empire</title>
+<script type="text/javascript">
+function myCallback(data){
+	var clicker = document.getElementById("clicker");
+	if (data == 0){
+		clicker.innerHTML = "Login failed";
+		setTimeout(function(){
+			clicker.innerHTML = "Log in with ktj.in";
+		},1500);
+		return;
+	}
+	clicker.innerHTML = "Success";
+	var form = document.forms[0];
+	form.children[1].value = data;
+	form.submit();
+}
+function checkLogged(){
+	var send = document.createElement("script");
+	send.src = "http://ktj.in/checkLogged.js?l="+Math.random();
+	document.body.appendChild(send);
+	document.getElementById("clicker").innerHTML = "Please wait";
+}
+</script>
+<style type="text/css">
+html, body{
+	width:100%;
+	height:100%;
+	padding:0;
+	margin:0;
+	overflow:hidden;
+	font-family:arial;
+}
+body{
+	background-color:#CF8B38;
+	background-image:url({% static "images/background.jpg;" %});
+	background-size:cover;
+	position:relative;
+}
+#login{
+	background:rgba(50,54,79,0.5);
+	width:26%;
+	left:37%;
+	top:20%;
+	position:absolute;
+	text-align:center;
+}
+div#cover{
+	width:100%;
+	position:absolute;
+	height:100%;
+	top:0;
+	left:0;
+	z-index:999;
+	background:rgba(0,0,0,0.6);
+	color:white;
+	font-size:20px;
+	text-align:center;
+	display:none;
+}
+div#cover > div{
+height:20%;
+top:40%;
+position:absolute;
+display:inline-block;
+}
+#login > img{
+	width:100%;
+	margin-top:6%;
+}
+#login form{
+	text-align:center;
+	width:94%;
+	position:relative;
+	left:3%;
+}
+#login form input{
+	width:94%;
+	margin-top:5%;
+	padding:20px;
+	color:white;
+	font-size:20px;
+	box-sizing:border-box;
+	background:rgba(70,74,99,0.9);
+	border:0px;
+	border-radius:3px;
+}
+button{
+	cursor:pointer;
+	display:inline-block;
+	margin-top:6%;
+	margin-bottom:9%;
+	background:#D18C37;
+	border:0px;
+	border-radius:3px;
+	padding:20px 40px;
+	font-size:25px;
+}
+div#messageContainer{
+	position:absolute;
+	top:5%;
+	height:30%;
+	left:20%;
+	text-align:center;
+	width:60%;
+}
+div#message{
+	color:black;
+	padding:8px 22px;
+	border-radius:4px;
+	display:inline-block;
+	background:#FFF1A8;
+	font-size:17px;
+	text-align:center;
+	opacity:0;
+	-webkit-transition:opacity 1s;
+	transition:opacity 1s;
+	-moz-transition:opacity 1s;
+	-o-transition:opacity 1s;
+	-ms-transition:opacity 1s;
+	cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div id="cover"><div></div></div>
+<div id="messageContainer"><div id="message">Haha</div></div>
+<div id="login">
+	<img src="{% static "images/logo.png" %}" />
+	<form method="post" action="/">
+		{% csrf_token %}
+		<input name="data" type="hidden"/>
+	</form>
+	<button id="clicker" onclick="checkLogged();">Log in with ktj.in</button>
+</div>
+<script type="text/javascript">
+window.onload = function(){
+	if (document.referrer.search("/login") > -1){
+		var message = document.getElementById("message");
+		message.innerHTML = "Not quite. Try again.";
+		setTimeout(function(){
+			message.style.opacity = 1;
+		},1000);
+		message.onclick=function(){
+			this.style.opacity = 0;
+		};
+	}
+};
+</script>
+</body>
+</html>

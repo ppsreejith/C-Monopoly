@@ -14,7 +14,7 @@ from django.db import connection
 
 def createUser(no, extra_energy = 5, energy_capacity =30):
     user = User.objects.create_user("test2609_%d"%no, "test2609_%d@gmail.com"%no, "password")
-    profile = Profile(user_login_id = "1665%d"%no, user = user, extra_energy = extra_energy, energy_capacity = energy_capacity)
+    profile = Profile(user = user, extra_energy = extra_energy, energy_capacity = energy_capacity)
     profile.save()
     return profile
 
@@ -150,12 +150,12 @@ class ModelsTestCase(TestCase):
         netWorth_before_loan = profile2.netWorth
         
         try:
-            profile2.takeLoan(100,12,values)
+            profile2.takeLoan(100,values)
         except Exception:
             pass
-        profile2.takeLoan(5,12,values[0:2])
+        profile2.takeLoan(5,values[0:2])
         try:
-            self.profile.takeLoan(3,12,values[2])
+            self.profile.takeLoan(3,values[2])
         except Exception:
             pass
         
@@ -497,14 +497,7 @@ class ModelsTestCase(TestCase):
         c = len(connection.queries)
         
         factories = Factory.objects.filter(transport__states__in = [self.state3])
-        print factories.exclude(state = self.state3)
-        print factories.exclude(state = self.state4)
         
         d = len(connection.queries)
         
         endMeasure()
-        
-        print a
-        print b-a
-        print c-b
-        print d-c

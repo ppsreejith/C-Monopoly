@@ -16,9 +16,8 @@ class Player(models.Model):
     loan_defaults = models.IntegerField(help_text = "Typically a small number (Integer)", default = 0)
     suspended = models.BooleanField(default = False)
     selling_energy = models.BooleanField(default = False)
-    user_login_id = models.CharField(max_length = 100, unique = True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
-    rank = models.PositiveIntegerField(unique=True, default = lambda: (Player.objects.count()+1) )
+    rank = models.PositiveIntegerField(default = lambda: (Player.objects.count()+1) )
     join_date = models.DateTimeField(auto_now_add = True)
     def __unicode__(self):
         return self.user.username

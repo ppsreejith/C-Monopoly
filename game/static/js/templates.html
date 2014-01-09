@@ -204,6 +204,7 @@
 <script type="text/html" id="noloan">
 	<h1>Industries to mortage</h1>
 	<br/>
+	<% if(factories.length == 0) { %> <span style='color:red;'>You have no factories to mortage.</span> <% } %>
 	<% _.each(factories,function(factory){ %>
 		<div data-amount=<%= factory.get('actual_value') %> data-id=<%= factory.get('id') %> class="mortaged_industries noloan" ><%= factory.get('type').name %> &nbsp; worth &nbsp; &#8377; <%= factory.get('actual_value') %> &nbsp; Million</div>
 	<% }) %>

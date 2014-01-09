@@ -34,6 +34,23 @@ img.splashScreen{
 	-o-transition:opacity 0.5s ease;
 	-ms-transition:opacity 0.5s ease;
 }
+div.cover{
+	width:100%;
+	height:100%;
+	background:rgba(0,0,0,0.3);
+	z-index:9999;
+	position:absolute;
+	top:0;
+	left:0;
+	display:none;
+}
+div.cover > img{
+	opacity:0.3;
+	position:absolute;
+	width:20%;
+	left:40%;
+	top:30%;
+}
 div.bigWrapper{
 	position:absolute;
 	top:0;

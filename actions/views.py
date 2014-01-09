@@ -4,7 +4,6 @@ from industry.models import Factory, LoansCreated
 from energy.models import PowerPlant
 from transport.models import TransportCreated
 from collections import defaultdict
-from django.db import connection
 import random
 from game.models import GlobalConstants
 from player.models import LogBook

@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse
 import json
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 from govt.models import State
 from collections import defaultdict
 from industry.models import ProductIndustry
@@ -14,16 +15,35 @@ from django.contrib.auth import authenticate,login as auth_login
 from transport.models import Transport
 from django.db import connection
 from django.core.cache import cache
+from Crypto.Cipher import AES
+from player.models import Player
+from django.contrib.auth import logout
 
 #Complicated code ahead. Beware!
 def index(request):
     queries = connection.queries
+    if request.method == "POST":
+        data = request.POST.get("data")
+        if data == None:
+            return redirect("login")
+        
+        try:
+            username = decrypt(data.decode("hex"))
+        except Exception:
+            return redirect("login")
+        
+        authent = authenticate(username = username, password = "heyheyhai")
+        if authent is None:
+            user = User.objects.create_user(username = username, password = "heyheyhai")
+            player = Player(user = user)
+            player.save()
+            authent = authenticate(username = username, password = "heyheyhai")
+            auth_login(request, authent)
+        else:
+            auth_login(request,authent)
     if not request.user.is_authenticated():
-        user_login = authenticate(username = "test2609_36",
-                                  password = "password")
-        auth_login(request,user_login)
+        return redirect("login")
     request.session['user_id'] = request.user.id
-    print len(queries)
     states = cache.get('states')
     productIndustries = cache.get('productIndustries')
     energyIndustries = cache.get('energyIndustries')
@@ -64,6 +84,10 @@ def index(request):
     print len(queries)
     return render(request,'index.html',{'states':states,'productIndustries':productIndustries,'energyIndustries':energyIndustries,'transports':transports})
 
+def leave(request):
+    logout(request)
+    return redirect('login')
+
 #Phew complicated shit over. :)
 
 class JsonMixin(object):
@@ -90,7 +114,7 @@ def check_ajax(function):
     Only allow authenticated ajax requests. Else 404 error.
     '''
     def wrapper(request, *args, **kwargs):
-        if request.is_ajax() and request.user.is_authenticated():
+        if request.is_ajax() and request.session.get('user_id') != None:
             return function(request,*args,**kwargs)
         else:
             raise PermissionDenied
@@ -110,3 +134,12 @@ def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
         return float(obj)
     raise TypeError
+
+def decrypt(text):
+    key = 'ktjsawesomekeyss'
+    IV = 16*'\x42'
+    mode = AES.MODE_CBC
+    decryptor = AES.new(key,mode, IV=IV)
+    username = decryptor.decrypt(text)
+    username = username.rstrip('[').encode('utf-8')
+    return username
