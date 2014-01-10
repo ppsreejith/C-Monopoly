@@ -14,6 +14,7 @@ Completing the game:
 
  - Code Refactoring
  - Improving testing
+ - Filling default data in sqlite
  - Command for populating game with default data
  - Completing the game
 
