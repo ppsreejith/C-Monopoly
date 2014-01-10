@@ -25,5 +25,12 @@ Extra feautres:
 
 ## License ##
 C-Monopoly is licensed under the [Non-distributive creative commons license][1]
-  [1]: http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
 
+## Contributors list ##
+[Nikhil Bapna][2]
+[Sreejith Pp][3] (ppsreejith)
+
+
+  [1]: http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+  [2]: https://plus.google.com/103663920690696894192
+  [3]: http://google.com/+sreejithpp
