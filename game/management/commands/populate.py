@@ -16,7 +16,7 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         
-        doRandom =  'random' in args
+        doRandom = 'random' in args
         doUsers = 'users' in args
         default = 'default' in args
         
