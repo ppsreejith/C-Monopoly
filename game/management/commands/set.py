@@ -11,9 +11,10 @@ from pipes import quote
 import random
 
 class Command(BaseCommand):
+    """Command to set current values as default values."""
     
     def handle(self, *args, **options):
-        print("Note that before setting default data, you must clear the default data.\n")
+        self.stdout.write( "Note that before setting default data, you must clear the default data.\n" )
         if raw_input("Are you sure you want to proceed to set current data as default data? ([y]/n)\n") in ("n","N"):
             return
         
@@ -29,12 +30,10 @@ class Command(BaseCommand):
         
         call( rm_old ,shell=True)
         call( sync_new ,shell=True)
-        print "Please Wait.."
+        self.stdout.write( "Please Wait.." )
         call( migrate_new ,shell=True)
-        print "Done Creating, now copying data.."
+        self.stdout.write( "Done Creating, now copying data.." )
         
-        #GlobalConstants, States, Transports, ProductIndustries, 
-        #EnergyIndustries, Calamities
         globalConstant = GlobalConstants.objects.all()
         for it in globalConstant:
             it.save(using = 'default_data')
@@ -53,4 +52,4 @@ class Command(BaseCommand):
         calamities = Calamity.objects.all()
         for it in calamities:
             it.save(using = 'default_data')
-        print "Done. Data successefully set to default."
+        self.stdout.write( "Done. Data successefully set to default." )

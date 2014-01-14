@@ -25,7 +25,7 @@ Extra feautres:
  - Research based improvements
 
 ## License ##
-C-Monopoly is licensed under the [Non-distributive creative commons license][1]
+C-Monopoly (Carbon Monopoly) is Licensed under the [Non-distributive creative commons license][1]
 
 ## Contributors list ##
 [Nikhil Bapna][2]

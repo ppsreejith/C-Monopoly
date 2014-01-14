@@ -1,12 +1,12 @@
 * Things currently doing
 ** TODO Get default data.
-** TODO Write command to set and retrieve backup data.
-** TODO Put default data in sqlite db.
+** DONE Write command to set and retrieve backup data.
+** DONE Put default data in sqlite db.
 
 * Things to do immediately after this
 ** TODO Delegate color highlighting to "selectable" class.
 ** TODO Refactor tests.
 
 * Other things to do
-** TODO Check out [[http://atlassian.com/git/tutorial/git-branches][git branches]] on a new project
-** TODO Mess with git in a new project
+** DONE Check out [[http://atlassian.com/git/tutorial/git-branches][git branches]] on a new project
+** DONE Mess with git in a new project

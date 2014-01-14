@@ -13,6 +13,7 @@ from pipes import quote
 from os.path import abspath
 
 class Command(BaseCommand):
+    """ Command to populate game constants with either random or default values. """
     
     def handle(self, *args, **options):
         
@@ -41,12 +42,12 @@ class Command(BaseCommand):
         
         if doUsers:
             limit = 100
-            print "Generating %d users"%limit
+            self.stdout.write( "Generating %d users"%limit )
             for i in range(1,limit+1):
                 profiles.append(createUser(i,
                                            extra_energy = 50, 
                                            energy_capacity = 300))
-            print "%d Users generated"%limit
+            self.stdout.write( "%d Users generated"%limit )
         
         states =[]
         stateIds = []
@@ -66,25 +67,25 @@ class Command(BaseCommand):
             
             for globConst in globalConstant:
                 globConst.save(using='default')
-            print "GlobalConstants created."
+            self.stdout.write( "GlobalConstants created." )
             for state in tempStates:
                 state.save(using='default')
-            print "States created."
+            self.stdout.write( "States created." )
             for product in tempProducts:
                 product.save(using='default')
-            print "ProductIndustries created."
+            self.stdout.write( "ProductIndustries created." )
             for energy in tempEnergies:
                 energy.save(using='default')
-            print "EnergyIndustries created."
+            self.stdout.write( "EnergyIndustries created." )
             for transport in tempTransports:
                 transport.save(using='default')
-            print "Transports created."
+            self.stdout.write( "Transports created." )
             for calamity in tempCalamities:
                 calamity.save(using='default')
-            print "Calamities created."
+            self.stdout.write( "Calamities created." )
         elif doRandom:
             stateLimit = 28
-            print "Generating %d states"%stateLimit
+            self.stdout.write( "Generating %d states"%stateLimit )
             for i in range(0,stateLimit):
                 obj = dict(stateValues)
                 obj['name'] = nameDef+str(i)
@@ -93,9 +94,9 @@ class Command(BaseCommand):
                 obj['coordy'] = coordinates[i]["coordy"]
                 states.append(createState(**obj))
                 stateIds.append(states[i].id)
-            print "%d States generated"%stateLimit
+            self.stdout.write( "%d States generated"%stateLimit )
             spLimit = 10
-            print "Generating %d small product industries"%spLimit
+            self.stdout.write( "Generating %d small product industries"%spLimit )
             for i in range(0,spLimit):
                 obj = dict(productValues)
                 vals =  random.sample( range(60),5 )
@@ -107,9 +108,9 @@ class Command(BaseCommand):
                 obj['maintenance_cost'] += vals[4]/1000.0
                 obj['states'] = random.sample(stateIds,random.randint(1,10))
                 others.append(createProductIndustry(**obj))
-            print "%d Small product industries generated"%spLimit
+            self.stdout.write( "%d Small product industries generated"%spLimit )
             mpLimit = 5
-            print "Generating %d medium product industries"%mpLimit
+            self.stdout.write( "Generating %d medium product industries"%mpLimit )
             for i in range(0,mpLimit):
                 obj = dict(medProductValues)
                 obj['name'] = nameDef+"mf"+str(i)
@@ -121,9 +122,9 @@ class Command(BaseCommand):
                 obj['maintenance_cost'] += vals[4]/100.0
                 obj['states'] = random.sample(stateIds,random.randint(1,10))
                 others.append(createProductIndustry(**obj))
-            print "%d Medium product industries generated"%mpLimit
+            self.stdout.write( "%d Medium product industries generated"%mpLimit )
             bpLimit = 2
-            print "Generating %d big product industries"%bpLimit
+            self.stdout.write( "Generating %d big product industries"%bpLimit )
             for i in range(0,bpLimit):
                 obj = dict(bigProductValues)
                 obj['name'] = nameDef+"bf"+str(i)
@@ -135,9 +136,9 @@ class Command(BaseCommand):
                 obj['maintenance_cost'] += vals[4]/10.0
                 obj['states'] = random.sample(stateIds,random.randint(1,10))
                 others.append(createProductIndustry(**obj))
-            print "%d Big product industries generated"%bpLimit
+            self.stdout.write( "%d Big product industries generated"%bpLimit )
             seLimit = 6
-            print "Generating %d small energy industries"%seLimit
+            self.stdout.write( "Generating %d small energy industries"%seLimit )
             for i in range(0,seLimit):
                 obj = dict(energyValues)
                 obj['name'] = nameDef+"sp"+str(i)
@@ -147,9 +148,9 @@ class Command(BaseCommand):
                 obj['carbon_per_unit'] += vals[2]/100.0
                 obj['states'] = random.sample(stateIds,random.randint(1,10))
                 others.append(createEnergyIndustry(**obj))
-            print "%d Small energy industries generated"%seLimit
+            self.stdout.write( "%d Small energy industries generated"%seLimit )
             meLimit = 3
-            print "Generating %d medium energy industries"%meLimit
+            self.stdout.write( "Generating %d medium energy industries"%meLimit )
             for i in range(0,meLimit):
                 obj = dict(medEnergyValues)
                 obj['name'] = nameDef+"mp"+str(i)
@@ -159,9 +160,9 @@ class Command(BaseCommand):
                 obj['carbon_per_unit'] += vals[2]/10.0
                 obj['states'] = random.sample(stateIds,random.randint(1,10))
                 others.append(createEnergyIndustry(**obj))
-            print "%d Medium energy industries generated"%meLimit
+            self.stdout.write( "%d Medium energy industries generated"%meLimit )
             beLimit = 1
-            print "Generating %d big energy industry"%beLimit
+            self.stdout.write( "Generating %d big energy industry"%beLimit )
             for i in range(0,beLimit):
                 obj = dict(bigEnergyValues)
                 obj['name'] = nameDef+"bp"+str(i)
@@ -171,9 +172,9 @@ class Command(BaseCommand):
                 obj['carbon_per_unit'] += vals[2]/1.0
                 obj['states'] = random.sample(stateIds,random.randint(1,10))
                 others.append(createEnergyIndustry(**obj))
-            print "%d Big energy industry generated"%beLimit
+            self.stdout.write( "%d Big energy industry generated"%beLimit )
             tLimit = 3
-            print "Generating %d transports"%tLimit
+            self.stdout.write( "Generating %d transports"%tLimit )
             for i in range(0,tLimit):
                 obj = dict(transportValues)
                 obj['name'] = nameDef+str(i)
@@ -183,9 +184,9 @@ class Command(BaseCommand):
                 obj['travel_rate'] += vals[2]/1000.0
                 obj['states'] = random.sample(stateIds,random.randint(4,8))
                 others.append(createTransport(**obj))
-            print "%d Transports generated"%tLimit
+            self.stdout.write( "%d Transports generated"%tLimit )
             cLimit = 5
-            print "Generating %d calamities"%cLimit
+            self.stdout.write( "Generating %d calamities"%cLimit )
             for i in range(0,cLimit):
                 obj = dict(calamityValues)
                 obj['name'] = nameDef+str(i)
@@ -194,17 +195,17 @@ class Command(BaseCommand):
                 obj['probability_number'] = vals[1]
                 obj['states'] = random.sample(stateIds,random.randint(4,10))
                 others.append(createCalamity(**obj))
-            print "%d Calamities generated"%cLimit
+            self.stdout.write( "%d Calamities generated"%cLimit )
         
         if not any([doRandom, doUsers, default]):
-            print """
+            self.stdout.write( """
 The available commands are random, users, default.
 They are used to generate users, states, transports, industries and calamities
 They are described as follows:
 random \t Generates random values for all,
 users \t Generates 100 random users,
 default \t Retrieves default set values for all,
-"""
+""" )
     
     def initVar(self):
         self.stateValues = {
