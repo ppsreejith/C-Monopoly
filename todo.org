@@ -5,7 +5,7 @@
 
 * Things to do immediately after this
 ** TODO Delegate color highlighting to "selectable" class.
-** TODO Refactor tests.
+** DONE Refactor tests.
 
 * Other things to do
 ** DONE Check out [[http://atlassian.com/git/tutorial/git-branches][git branches]] on a new project

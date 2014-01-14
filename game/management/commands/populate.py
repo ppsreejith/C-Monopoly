@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-from game.tests import createUser, createState, createEnergyIndustry,\
-    createProductIndustry, createTransport, createCalamity
+from game.tools import *
 from govt.models import State
 from game.models import GlobalConstants
 from transport.models import Transport
@@ -25,7 +24,9 @@ class Command(BaseCommand):
         return self.populate(doRandom, doUsers, default)
     
     def populate(self, doRandom, doUsers, default):
-        
+        """
+        Populates different types of game data depending on arguments.
+        """
         stateValues = self.stateValues
         productValues = self.productValues
         medProductValues = self.medProductValues

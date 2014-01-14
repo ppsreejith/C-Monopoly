@@ -6,7 +6,18 @@ Future plans include automated bots, acquisitions and research based improvement
 The game as of 10th Jan 2014 is not playable.
 
 ## Documentation ##
-Will be added soon
+Here are the python manage.py commands (Run with "python manage.py <command_name>"):
+
+ - test game (To run the tests)
+ - populate users (populate game with 100 users)
+ - populate random (populate game with random game data)
+ - populate default (populate game with accepted, default data. Will fill in default data soon)
+ - remove users (removes all automatically generated users)
+ - remove states (removes all automatically generated game data)
+ - remove all (remove all automatically generated stuff)
+ - daily (Run the game day job)
+
+More will be added soon
 
 ## Roadmap ##
 
