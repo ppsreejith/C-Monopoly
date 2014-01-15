@@ -46,7 +46,8 @@ class Loans(ApiTemplate):
 
 class EnergyMarket(ApiTemplate):
     def get(self, request):
-        rand = random.randint(1,Profile.objects.count() - 20)
+        rand = random.randint(1,Profile.objects.count()) - 20
+        rand = 0 if rand < 0 else rand
         limit = 9
         users = list(Profile.objects.filter(selling_energy = False).filter(rank__gte = rand).values('id','user__username','rank','extra_energy')[:limit])
         return self.render(users)
