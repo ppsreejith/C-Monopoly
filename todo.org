@@ -1,12 +1,10 @@
 * Things currently doing
 ** TODO Get default data.
+** TODO Create a Server branch without relevant information i.e passwords, encryption details etc.
+** TODO Push to Github.
 ** DONE Write command to set and retrieve backup data.
 ** DONE Put default data in sqlite db.
 
 * Things to do immediately after this
 ** TODO Delegate color highlighting to "selectable" class.
 ** DONE Refactor tests.
-
-* Other things to do
-** DONE Check out [[http://atlassian.com/git/tutorial/git-branches][git branches]] on a new project
-** DONE Mess with git in a new project
