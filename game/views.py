@@ -18,6 +18,7 @@ from django.core.cache import cache
 from Crypto.Cipher import AES
 from player.models import Player
 from django.contrib.auth import logout
+from django.conf import settings
 
 #Complicated code ahead. Beware!
 def index(request):
@@ -136,8 +137,8 @@ def decimal_default(obj):
     raise TypeError
 
 def decrypt(text):
-    key = 'ktjsawesomekeyss'
-    IV = 16*'\x42'
+    key = settings.LOGIN_DECODE_KEY
+    IV = settings.LOGIN_DECODE_IV
     mode = AES.MODE_CBC
     decryptor = AES.new(key,mode, IV=IV)
     username = decryptor.decrypt(text)
