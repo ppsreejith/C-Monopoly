@@ -21,9 +21,9 @@ class Command(BaseCommand):
         default = 'default' in args
         
         self.initVar()
-        return self.populate(doRandom, doUsers, default)
+        return self.populate(doRandom, doUsers, default, args)
     
-    def populate(self, doRandom, doUsers, default):
+    def populate(self, doRandom, doUsers, default, args):
         """
         Populates different types of game data depending on arguments.
         """
@@ -42,12 +42,9 @@ class Command(BaseCommand):
         profiles = []
         
         if doUsers:
-            limit = 100
+            limit = int(next( (arg for arg in args if arg.isdigit()) ,100))
             self.stdout.write( "Generating %d users"%limit )
-            for i in range(1,limit+1):
-                profiles.append(createUser(i,
-                                           extra_energy = 50, 
-                                           energy_capacity = 300))
+            createUser(1, extra_energy = 50, energy_capacity = 300, multiple = True, limit = limit)
             self.stdout.write( "%d Users generated"%limit )
         
         states =[]
@@ -202,10 +199,10 @@ class Command(BaseCommand):
             self.stdout.write( """
 The available commands are random, users, default.
 They are used to generate users, states, transports, industries and calamities
-They are described as follows:
+They are described as follows:\n
 random \t Generates random values for all,
 users \t Generates 100 random users,
-default \t Retrieves default set values for all,
+default \t Retrieves default set values for all,\n
 """ )
     
     def initVar(self):
