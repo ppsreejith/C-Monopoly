@@ -31,10 +31,10 @@ class Command(BaseCommand):
         if not any([every, doUsers, doStates]):
             self.stdout.write("""
 The available commands are all, users, states.
-They are used to remove users, states, transports, industries and calamities starting with test2609_
+They are used to remove users, states, transports, industries and calamities starting with {0}
 They are described as follows:
 
 all \t Removes everything
-users \t Removes users starting with test2609_
-states \t Removes states, transports, industries and calamities starting with test2609_
-            """ )
+users \t Removes users starting with {0}
+states \t Removes states, transports, industries and calamities starting with {0}
+            """.format(nameDef) )

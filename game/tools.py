@@ -5,6 +5,7 @@ from energy.models import EnergyIndustry
 from calamity.models import Calamity
 from transport.models import Transport, TransportCreated
 from django.db import connection
+from player.models import Player
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -12,8 +13,9 @@ from django.contrib.auth.models import User
 Created by ppsreejith
 Contains functions for creating game data.
 """
+namedef = "test2609_"
 
-def createUser(no, extra_energy = 5, energy_capacity =30):
+def createUser(no, extra_energy = 5, energy_capacity =30, multiple = False, limit = 1, password = "password"):
     """Creates a user and profile class according to supplied arguments.
     
     Args:
@@ -24,8 +26,20 @@ def createUser(no, extra_energy = 5, energy_capacity =30):
     Returns:
         An new instance of profile model.
     """
-    
-    user = User.objects.create_user("test2609_%d"%no, "test2609_%d@gmail.com"%no, "password")
+    if multiple:
+        users = []
+        players = []
+        for i in range(0,limit):
+            tempuser = User(username = "%s%d"%(namedef,no+i), email = "%s%d@gmail.com"%(namedef,no+i), password = password)
+            users.append(tempuser)
+        User.objects.bulk_create(users)
+        users = User.objects.filter(username__startswith = namedef)
+        for user in users:
+            player = Player(user = user, extra_energy = extra_energy, energy_capacity = energy_capacity)
+            players.append(player)
+        Player.objects.bulk_create(players)
+        return Profile.objects.filter(user__username__startswith = namedef)
+    user = User.objects.create_user("%s%d"%(namedef,no), "%s%d@gmail.com"%(namedef,no), password)
     profile = Profile(user = user, extra_energy = extra_energy, energy_capacity = energy_capacity)
     profile.save()
     return profile
